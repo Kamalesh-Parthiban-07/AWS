@@ -1,0 +1,107 @@
+AWS CodeBuild is a fully managed build service — it replaces Jenkins agent/server.
+
+Simple meaning:
+
+Jenkins:                    CodeBuild:
+────────                    ──────────
+You manage EC2 server       AWS manages everything
+You install Java, Maven     Pre-installed runtimes
+You maintain plugins        No plugins needed
+Running 24/7 costs money    Pay per build minute
+You scale manually          Auto scales ✅
+
+What CodeBuild does:
+
+Takes your source code
+        ↓
+Spins up a fresh container
+        ↓
+Runs your buildspec.yml commands
+        ↓
+Build JAR ✅
+Run tests ✅
+Docker build ✅
+Push to ECR ✅
+Deploy to EKS ✅
+        ↓
+Container destroyed after build
+        ↓
+You pay only for build time ✅
+
+CodeBuild environment:
+
+When build starts:
+  AWS spins up fresh Ubuntu container
+        ↓
+  Pre-installed:
+    ✅ Java (corretto 8/11/17/21)
+    ✅ Maven
+    ✅ Docker
+    ✅ AWS CLI
+    ✅ Node.js
+    ✅ Python
+    ✅ Go
+        ↓
+  Runs your buildspec.yml
+        ↓
+  Build completes
+        ↓
+  Container destroyed ✅
+  Nothing persists
+
+
+buildspec.yml is the brain of CodeBuild:
+
+version: 0.2
+
+phases:
+  install:       # install extra tools
+  pre_build:     # login, setup
+  build:         # main work
+  post_build:    # deploy, notify
+
+artifacts:       # files to save after build
+reports:         # test reports
+---------------------------------------------------------------------------------------
+In your pipeline:
+
+CodePipeline orchestrates ← manager
+        ↓
+CodeBuild executes        ← worker
+        ↓
+Reads buildspec.yml       ← instructions
+        ↓
+Does all the actual work:
+  build, test, docker, push, deploy
+-------------------------------------------------------------------------------------
+CodeBuild vs Jenkins vs GitHub Actions:
+
++--------------------+-------------------+-------------------+----------------------+
+|                    | CodeBuild         | Jenkins           | GitHub Actions       |
++--------------------+-------------------+-------------------+----------------------+
+| Server needed      | No ✓              | Yes ✗             | No ✓                 |
+| Managed by         | AWS               | You               | GitHub               |
+| Cost               | Per minute        | EC2 always on     | Free/paid            |
+| Config file        | buildspec.yml     | Jenkinsfile       | .yml                 |
+| Docker support     | ✓                 | ✓                 | ✓                    |
+| AWS integration    | Native ✓          | Manual            | Via secrets          |
+| Scales             | Auto ✓            | Manual            | Auto ✓               |
++--------------------+-------------------+-------------------+----------------------+
+---------------------------------------------------------------------------------------
+AWS CodeBuild
+---------------
+AWS CodeBuild is a fully managed build service that replaces Jenkins. It spins up a fresh container for each build, runs your buildspec.yml commands, and destroys the container after. No server to manage, no plugins to install, auto scales for parallel builds, and you only pay per build minute. In our pipeline CodePipeline is the orchestrator that triggers CodeBuild which does all the actual work — building JAR, running tests, building Docker image, pushing to ECR and deploying to EKS
+
+
+
+
+
+
+
+
+
+
+
+
+
+
