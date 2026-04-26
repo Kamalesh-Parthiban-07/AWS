@@ -130,23 +130,52 @@ All 3 process same message independently ✅
 ----------------------------------------
 SNS vs SQS
 
-SNS                           SQS
-───────────────               ───────────────
-Push based                    Pull based
-publisher sends               consumer pulls
-one to many (fan out)         one to one
-no message storage            stores messages
-subscriber gets immediately   consumer reads when ready
-notification service          queue service
+SQS                          SNS
+────────────────             ────────────────
+Queue                        Topic
+Pull (consumer pulls)        Push (SNS pushes)
+One to One                   One to Many
+Stores messages              No storage
+Process later                Immediate
+Decouple services            Notify many
 
-Use SNS when:
-  ✅ notify multiple systems at once
+When to use SQS:
+  ✅ background jobs
+  ✅ decouple services
+  ✅ handle traffic spikes
+  ✅ retry failed tasks
+
+When to use SNS:
+  ✅ notify multiple systems
   ✅ real time alerts
   ✅ fan out pattern
+-------------------------
+SQS Console Setup
 
-Use SQS when:
-  ✅ decouple services
-  ✅ process messages later
-  ✅ retry failed messages
+SQS Console
+→ Create queue
 
+Type:
+  ○ Standard  ✅
+  ○ FIFO
 
+Name: my-order-queue
+
+Configuration:
+  Visibility timeout : 30 sec    // hide while processing
+  Message retention  : 4 days    // keep for 4 days
+  Delivery delay     : 0 sec     // deliver immediately
+  Max message size   : 256 KB    // max size per message
+  Receive wait time  : 20 sec    // long polling ✅
+
+Dead letter queue:
+  Enable: ✅
+  Max receives: 3                // retry 3 times then DLQ
+
+→ Create queue ✅
+-------------------------
+SQS in simple
+
+SQS is a fully managed message queue that stores messages between services so they can work independently without depending on each other — if one service is slow or down, messages wait safely in the queue! ✅
+
+--------------------
