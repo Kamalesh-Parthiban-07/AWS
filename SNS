@@ -179,3 +179,51 @@ SQS in simple
 SQS is a fully managed message queue that stores messages between services so they can work independently without depending on each other — if one service is slow or down, messages wait safely in the queue! ✅
 
 --------------------
++----------------------+        +--------------------------+        +----------------------+
+|      Producers       |        |         AWS SQS          |        |      Consumers       |
+|----------------------|        |--------------------------|        |----------------------|
+| EC2 instance         | -----> | Standard queue           | -----> | EC2 instance         |
+| Lambda               |  send  | fast | at least once     |  poll  | Lambda               |
+| API Gateway          |        |                          |        | ECS / EKS            |
++----------------------+        | FIFO queue               |        +----------------------+
+                                | ordered | exactly once   |
+                                |                          |
+                                | Visibility timeout       |
+                                | prevents duplicates      |
+                                |                          |
+                                | Long polling             |
+                                | saves cost               |
+                                +------------+-------------+
+                                             |
+                                             | retry failed
+                                             v
+                                  +----------------------+
+                                  |  Dead Letter Queue   |
+                                  |----------------------|
+                                  | failed messages here |
+                                  +----------+-----------+
+                                             |
+                                             v
+                                +---------------------------+
+                                |    SNS + SQS fanout       |
+                                | one message → many queues |
+                                +-----+---------+-----------+
+                                      |         |
+                          +-----------+         +-----------+
+                          |                                   |
+                     +---------+                         +---------+
+                     | Queue 1 |                         | Queue 3 |
+                     +---------+                         +---------+
+                              \                         /
+                               \                       /
+                                \                     /
+                                 v                   v
+                                  +---------+
+                                  | Queue 2 |
+                                  +---------+
+
+        +------------------------------------------------------+
+        |            Traffic spike protection                  |
+        | messages wait safely in queue — consumer             |
+        | processes at own pace                                |
+        +------------------------------------------------------+
