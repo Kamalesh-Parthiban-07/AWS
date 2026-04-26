@@ -1,0 +1,53 @@
+What is SNS in AWS?
+
+Amazon SNS (Simple Notification Service) is a fully managed messaging service that sends messages/notifications to multiple subscribers at once.
+
+Application Alerts
+
+EC2 CPU > 90%
+    │
+    ▼
+CloudWatch → SNS → Email to DevOps team 📧
+
+Can we set on SNS alert on ASG?
+
+Yes! You can set SNS Alerts on ASG (Auto Scaling Group) ✅
+
+ASG Events That Trigger SNS
+
+when we create ASG we get option to enable for SNS
+
+Create Auto Scaling Group
+    │
+    ▼
+Step 5 — Add Notifications (optional)
+    │
+    ├── SNS Topic     → choose or create topic
+    │
+    └── Event Types   → all 4 checked by default:
+          ✅ Launch
+          ✅ Terminate
+          ✅ Fail to launch
+          ✅ Fail to terminate
+
+In SNS
+
+Step 1 — Create Topic
+  my-alerts-topic ✅
+
+Step 2 — Create Subscriptions (who gets notified)
+  Subscription 1 → Email    → devops@company.com
+  Subscription 2 → SMS      → +91xxxxxxxxxx
+  Subscription 3 → Lambda   → my-function
+  Subscription 4 → SQS      → my-queue
+
+Step 3 — Publish Message to Topic
+  "EC2 instance launched!"
+        │
+        ▼
+  Topic receives message
+        │
+        ├──→ Email sent to devops@company.com  📧
+        ├──→ SMS sent to +91xxxxxxxxxx         💬
+        ├──→ Lambda triggered                  ⚡
+        └──→ Message added to SQS queue        📦
