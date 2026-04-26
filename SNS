@@ -1,7 +1,7 @@
 What is SNS in AWS?
 
 Amazon SNS (Simple Notification Service) is a fully managed messaging service that sends messages/notifications to multiple subscribers at once.
-
+---------------------------------------------------------------------------
 Application Alerts
 
 EC2 CPU > 90%
@@ -9,13 +9,13 @@ EC2 CPU > 90%
     ▼
 CloudWatch → SNS → Email to DevOps team 📧
 
-Can we set on SNS alert on ASG?
+Can we set on SNS alert on ASG?  or SNS with ASG notifications? (important)
 
 Yes! You can set SNS Alerts on ASG (Auto Scaling Group) ✅
 
 ASG Events That Trigger SNS
 
-when we create ASG we get option to enable for SNS
+when we create ASG we get option to enable for SNS 
 
 Create Auto Scaling Group
     │
@@ -51,3 +51,102 @@ Step 3 — Publish Message to Topic
         ├──→ SMS sent to +91xxxxxxxxxx         💬
         ├──→ Lambda triggered                  ⚡
         └──→ Message added to SQS queue        📦
+--------------------------------------------
+ SNS Subscription Types Full List?
+
+✅ Email          → sends email
+✅ Email-JSON     → sends JSON formatted email
+✅ SMS            → sends text message
+✅ HTTP/HTTPS     → calls your API endpoint
+✅ Lambda         → triggers Lambda function
+✅ SQS            → adds to queue
+✅ Kinesis        → streams data
+✅ Mobile Push    → iOS/Android notification
+-------------------------------------------
+SNS with CloudWatch (common interview)?
+
+CloudWatch Alarm
+  CPU > 90%
+        ↓
+  triggers SNS topic
+        ↓
+  ├──→ Email to DevOps
+  ├──→ Lambda → auto fix issue
+  └──→ PagerDuty → on call alert
+------------------------------------------
+SNS Types?
+
+Standard Topic:
+  ✅ unlimited throughput
+  ✅ at least once delivery
+  ⚠️ messages may be out of order
+  ⚠️ duplicates possible
+
+FIFO Topic:
+  ✅ exactly once delivery
+  ✅ strict order guaranteed
+  ❌ lower throughput
+  ✅ use when order matters
+------------------------------------------
+SNS Message Filtering?
+
+Without filtering:
+  ALL subscribers get ALL messages ❌
+
+With filtering:
+  subscribers get ONLY relevant messages ✅
+
+Example:
+  SNS Topic receives all orders
+
+  Subscription 1 (Electronics team):
+    filter: category = "electronics"
+    only gets electronics orders ✅
+
+  Subscription 2 (Clothing team):
+    filter: category = "clothing"
+    only gets clothing orders ✅
+-------------------------------------
+ SNS Fan Out Pattern (important!)?
+
+One message → many queues
+
+SNS Topic
+    ↓
+    ├──→ SQS Queue 1 → Service A processes
+    ├──→ SQS Queue 2 → Service B processes
+    └──→ SQS Queue 3 → Service C processes
+
+Real example:
+  User uploads image
+        ↓
+  SNS Topic
+        ↓
+  ├──→ SQS → resize image service
+  ├──→ SQS → watermark service
+  └──→ SQS → virus scan service
+
+All 3 process same message independently ✅
+----------------------------------------
+SNS vs SQS
+
+SNS                           SQS
+───────────────               ───────────────
+Push based                    Pull based
+publisher sends               consumer pulls
+one to many (fan out)         one to one
+no message storage            stores messages
+subscriber gets immediately   consumer reads when ready
+notification service          queue service
+
+Use SNS when:
+  ✅ notify multiple systems at once
+  ✅ real time alerts
+  ✅ fan out pattern
+
+Use SQS when:
+  ✅ decouple services
+  ✅ process messages later
+  ✅ retry failed messages
+
+
