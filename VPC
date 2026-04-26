@@ -218,3 +218,41 @@ SSH	22	1024–65535
 ✔️ Just slightly over-permissive, but not wrong
 
 Allowing outbound ports 80, 443, or 22 does not break anything, but it is not required for return traffic. The critical rule is allowing ephemeral ports (1024–65535). Without that, the connection will fail.
+
+
+Option 1: VPC Peering (3 VPCs)
+
+VPC A ←→ VPC B
+VPC B ←→ VPC C
+VPC A ←→ VPC C
+
+Need 3 peering connections
+for full mesh ✅
+
+Problem:
+  3 VPCs  → 3 peering connections
+  4 VPCs  → 6 peering connections
+  5 VPCs  → 10 peering connections
+  10 VPCs → 45 peering connections ❌
+  gets complex fast!
+
+Option 2: Transit Gateway (recommended)
+
+VPC A ─┐
+VPC B ─┼→ Transit Gateway → all connected ✅
+VPC C ─┘
+
+Just 1 Transit Gateway
+connects ALL VPCs ✅
+
+VPC Peering vs Transit Gateway
+
+Feature            | VPC Peering              | Transit Gateway
+-------------------|--------------------------|-----------------------
+3 VPCs             | 3 connections            | 1 TGW ✔
+10 VPCs            | 45 connections ✘         | 1 TGW ✔
+Transitive routing | ✘ No                    | ✔ Yes
+Cost               | cheap                   | slightly more
+Management         | complex at scale        | simple ✔
+Cross region       | ✔ Yes                   | ✔ Yes
+Cross account      | ✔ Yes                   | ✔ Yes
