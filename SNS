@@ -128,9 +128,45 @@ Subscriptions:
   ├── SQS: payment-queue       (process payment)
   └── SQS: analytics-queue     (track order)
 
+SNS Topic
+   ├── Subscription 1 → SQS: email-queue
+   ├── Subscription 2 → SQS: inventory-queue
+   ├── Subscription 3 → SQS: payment-queue
+   └── Subscription 4 → SQS: analytics-queue
+
 All 4 happen simultaneously ✅
 
 All 3 process same message independently ✅
+
+Real world — when to use what:
+
++-------------------+-----------+----------------------------------+
+| Subscriber        | Need SQS? | Why                              |
++-------------------+-----------+----------------------------------+
+| Email             | ✗ No      | AWS manages email delivery       |
+| SMS               | ✗ No      | AWS manages SMS delivery         |
+| Lambda            | ✗ No      | Lambda scales auto               |
+| HTTP endpoint     | ✓ Yes     | Endpoint can go down             |
+| EC2 consumer      | ✓ Yes     | EC2 can go down                  |
+| EKS pod           | ✓ Yes     | Pod can crash                    |
+| Microservice      | ✓ Yes     | Service can be slow              |
++-------------------+-----------+----------------------------------+
+
+SNS is push based — it broadcasts to all subscribers instantly but if a subscriber is down SNS retries limited times and then the message is lost forever.
+SQS is added between SNS and the consumer to store messages safely — SQS retries unlimited times and even if all retries fail the message goes to DLQ and is never lost.
+
+SNS can send directly to any subscriber like Email, SMS, Lambda without SQS.
+SQS is only added when your own service like EC2 or EKS can go down — SQS stores messages safely until the service comes back up.
+
+Key difference:
+
++------------------------+-------------------+-------------------+
+|                        | SNS retry         | SQS retry         |
++------------------------+-------------------+-------------------+
+| Retries                | Limited ✗         | Unlimited ✓       |
+| Message after retries  | Lost forever ✗    | Goes to DLQ ✓     |
+| Storage                | No ✗              | Yes ✓             |
++------------------------+-------------------+-------------------+
 ----------------------------------------
 SNS vs SQS
 
