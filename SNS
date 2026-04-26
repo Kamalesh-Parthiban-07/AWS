@@ -276,3 +276,14 @@ DLQ = Dead Letter Queue — a separate queue that stores failed messages.
 
 SNS DLQ stores messages that SNS failed to deliver to the subscriber — delivery problem. SQS DLQ stores messages that the consumer received but failed to process after max retries — processing problem.
 
+Key point:
+
++---------------------+-------------------+------------------------------+
+|                     | SNS DLQ           | SQS DLQ                      |
++---------------------+-------------------+------------------------------+
+| Stores full message | ✗ No              | ✓ Yes                        |
+| Can reprocess       | ✗ No              | ✓ Yes                        |
+| Stores error info   | ✓ Yes             | ✓ Yes                        |
+| Purpose             | Debug delivery    | Reprocess failed messages    |
+|                     | failure           |                              |
++---------------------+-------------------+------------------------------+
