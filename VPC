@@ -124,6 +124,38 @@ NACL
 
 How are NACL rules evaluated?
 
+Default NACL vs Custom NACL
+
+Default NACL:
+─────────────
+Auto created when VPC created
+Auto associated with all subnets
+  inbound  → ✅ Allow all (Rule 100)
+  outbound → ✅ Allow all (Rule 100)
+
+Custom NACL:
+─────────────
+You create manually
+  inbound  → ❌ Deny all (only Rule *)
+  outbound → ❌ Deny all (only Rule *)
+  you must add rules manually ✅
+
+Custom NACL Default Rules
+
+Inbound rules:
+Rule #  Type   Protocol  Port   Source      Allow/Deny
+──────  ─────  ────────  ─────  ──────────  ──────────
+*       All    All       All    0.0.0.0/0   Deny   ❌
+
+Outbound rules:
+Rule #  Type   Protocol  Port   Destination Allow/Deny
+──────  ─────  ────────  ─────  ──────────  ──────────
+*       All    All       All    0.0.0.0/0   Deny   ❌
+
+Only Rule * exists
+→ denies everything ❌
+you must add allow rules manually
+
 NACL rules are evaluated in order by rule number (lowest to highest).
 The first matching rule is applied, and the rest are ignored.
 Exactly! In AWS NACLs, the rule with the lowest rule number is evaluated first and takes highest priority.
