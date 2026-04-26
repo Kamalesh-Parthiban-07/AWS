@@ -109,22 +109,26 @@ Example:
 -------------------------------------
  SNS Fan Out Pattern (important!)?
 
+https://www.youtube.com/watch?v=YIUXQpSgNQ8
+
 One message → many queues
+-----------------------------------------
+Real world example — Order placed:
+------------------------------------------
 
-SNS Topic
+Customer places order
+        ↓
+Order Service publishes to SNS topic
+        ↓
+SNS Topic: order-events
     ↓
-    ├──→ SQS Queue 1 → Service A processes
-    ├──→ SQS Queue 2 → Service B processes
-    └──→ SQS Queue 3 → Service C processes
+Subscriptions:
+  ├── SQS: email-queue         (send confirmation email)
+  ├── SQS: inventory-queue     (reduce stock)
+  ├── SQS: payment-queue       (process payment)
+  └── SQS: analytics-queue     (track order)
 
-Real example:
-  User uploads image
-        ↓
-  SNS Topic
-        ↓
-  ├──→ SQS → resize image service
-  ├──→ SQS → watermark service
-  └──→ SQS → virus scan service
+All 4 happen simultaneously ✅
 
 All 3 process same message independently ✅
 ----------------------------------------
