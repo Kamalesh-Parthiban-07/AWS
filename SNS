@@ -269,3 +269,10 @@ SQS is a fully managed message queue that stores messages between services so th
         | messages wait safely in queue — consumer             |
         | processes at own pace                                |
         +------------------------------------------------------+
+
+------------
+
+DLQ = Dead Letter Queue — a separate queue that stores failed messages.
+
+SNS DLQ stores messages that SNS failed to deliver to the subscriber — delivery problem. SQS DLQ stores messages that the consumer received but failed to process after max retries — processing problem.
+
