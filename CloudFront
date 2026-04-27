@@ -1,0 +1,109 @@
+What is CloudFront in AWS?
+
+Amazon CloudFront is a CDN (Content Delivery Network) service that delivers content to users faster by caching it at edge locations closer to them.
+
+Problem Without CloudFront
+
+User in India
+    │
+    │  every request travels all the way
+    ▼
+Server in US (S3 / EC2)
+    │
+    ▼
+Response travels back to India
+
+Result:
+  ❌ High latency (slow)
+  ❌ High load on origin server
+  ❌ Bad user experience
+
+Solution With CloudFront
+
+User in India
+    │
+    ▼
+CloudFront Edge Location (Mumbai)  ← closest location
+    │
+    ├── content cached here? → serve directly ✅ (fast!)
+    │
+    └── not cached? → fetch from US origin once
+                      then cache for next users ✅
+
+How CloudFront Works?
+
+Step 1 — First Request:
+User → CloudFront Edge → Cache MISS → fetch from Origin → cache it → serve user
+
+Step 2 — Subsequent Requests:
+User → CloudFront Edge → Cache HIT → serve directly (no origin call) ✅
+
+CloudFront Edge Locations
+
+CloudFront has 400+ Edge Locations worldwide:
+
+Americas        Europe          Asia
+──────────      ──────────      ──────────
+New York        London          Mumbai      ← your instance
+Los Angeles     Frankfurt       Singapore     is in us-east-2c
+São Paulo       Paris           Tokyo         but users in India
+                Amsterdam       Sydney        hit Mumbai edge ✅
+
+Yes! CloudFront is NOT enabled by default — You need to set it up
+
+By Default — Without CloudFront
+
+Your Setup (default):
+  S3 Bucket / EC2 / ALB
+      │
+      └── users access directly
+          no caching, no CDN ❌
+
+How to Enable CloudFront — Step by Step  ?
+
+Case 1 — CloudFront for S3 (Static Website)
+Step 1 — Go to CloudFront Console
+
+AWS Console
+    │
+    ▼
+Search "CloudFront"
+    │
+    ▼
+Click "Create Distribution"
+
+Step 2 — Set Origin (your S3 bucket)
+
+Origin Domain  →  select your S3 bucket
+                  myapp-bucket.s3.amazonaws.com
+
+Origin Access  →  select "Origin Access Control (OAC)"
+                  (keeps S3 private, only CloudFront can access) ✅
+
+Step 3 — Cache Settings
+
+Cache Policy       →  CachingOptimized (recommended)
+Compress Objects   →  Yes (gzip compression)
+Viewer Protocol    →  Redirect HTTP to HTTPS ✅
+
+Step 4 — Settings
+
+Step 5 — Create Distribution
+
+Click "Create Distribution"
+    │
+    ▼
+Takes 5-10 minutes to deploy worldwide
+    │
+    ▼
+You get a domain:
+  d1234abcd.cloudfront.net  ✅
+
+Case 2 — CloudFront for EC2 / ALB
+
+Once enabled, users hit CloudFront edge locations instead of your origin directly — faster, safer, cheaper ✅
+
+
+it gives the s3 link in cloud front right?
+
+Yes! CloudFront gives you a URL that serves your S3 content
