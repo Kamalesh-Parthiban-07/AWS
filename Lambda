@@ -707,3 +707,40 @@ Create a rule in EventBridge
 Choose Schedule
 Use cron or rate expression
 Set Lambda as target
+--------------
+
+another from company
+
+Full flow:
+
+CloudWatch Event
+        ↓
+SNS Topic 1
+        ↓
+Lambda triggered
+        ↓
+Reads message + subject
+        ↓
+Formats JSON nicely
+        ↓
+Publishes to SNS Topic 2
+        ↓
+Email to team 📧 ✅
+
+Why two SNS topics?
+
+SNS Topic 1:
+  Receives raw events from
+  CloudWatch, ASG, EC2 etc.
+  Messages can be ugly JSON ❌
+
+Lambda in between:
+  Cleans up the message ✅
+  Formats JSON nicely ✅
+  Extracts useful subject ✅
+
+SNS Topic 2:
+  Sends clean formatted email
+  to team ✅
+
+This Lambda acts as a message formatter and forwarder — it receives a raw SNS event, extracts the subject and message, tries to parse and pretty print the JSON, uses detail-type as subject if available, then forwards the cleaned message to another SNS topic via publish. It sits between two SNS topics to format raw CloudWatch or ASG events into readable emails before sending to the team
