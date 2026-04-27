@@ -226,6 +226,170 @@ Engineer gets notified instantly
 
 Real companies: Every DevOps team ✅
 
+--------
+code
+
+1. Image/Video Processing
+
+Language: Python ✅
+
+Why Python:
+  Pillow library  → image resize/compress
+  boto3           → S3 operations
+  OpenCV          → video processing
+  Simple syntax   → easy to maintain
+
+import boto3
+from PIL import Image
+import io
+
+def lambda_handler(event, context):
+    s3 = boto3.client('s3')
+    
+    # get uploaded image
+    bucket = event['Records'][0]['s3']['bucket']['name']
+    key    = event['Records'][0]['s3']['object']['key']
+    
+    # download from S3
+    response = s3.get_object(Bucket=bucket, Key=key)
+    image    = Image.open(response['Body'])
+    
+    # generate thumbnail
+    image.thumbnail((200, 200))
+    
+    # save thumbnail back to S3
+    buffer = io.BytesIO()
+    image.save(buffer, format='JPEG')
+    buffer.seek(0)
+    
+    s3.put_object(
+        Bucket=bucket,
+        Key=f'thumbnails/{key}',
+        Body=buffer
+    )
+    
+    print(f"Thumbnail created for {key}")
+
+2. Auto Remediation
+
+Language: Python ✅
+
+Why Python:
+  boto3 → full AWS SDK
+  simple → easy to read
+  fast to write → quick fixes
+
+import boto3
+
+def lambda_handler(event, context):
+    asg    = boto3.client('autoscaling')
+    sns    = boto3.client('sns')
+    
+    # increase ASG capacity
+    asg.set_desired_capacity(
+        AutoScalingGroupName = 'my-asg',
+        DesiredCapacity      = 4        # scale up
+    )
+    
+    # notify team on Slack via SNS
+    sns.publish(
+        TopicArn = 'arn:aws:sns:us-east-1:123:alerts',
+        Message  = '🚨 CPU > 90%! Auto scaled to 4 instances',
+        Subject  = 'Auto Remediation Triggered'
+    )
+    
+    print("Auto remediation complete")
+
+3. Security Automation
+
+Language: Python ✅
+
+Why Python:
+  boto3 → EC2, IAM, GuardDuty APIs
+  quick to write security rules
+  easy to maintain
+
+import boto3
+
+def lambda_handler(event, context):
+    ec2 = boto3.client('ec2')
+    iam = boto3.client('iam')
+    sns = boto3.client('sns')
+    
+    # get suspicious IP from GuardDuty event
+    suspicious_ip = event['detail']['service']\
+                         ['action']['networkConnectionAction']\
+                         ['remoteIpDetails']['ipAddressV4']
+    
+    # block IP in security group
+    ec2.revoke_security_group_ingress(
+        GroupId    = 'sg-12345678',
+        IpProtocol = '-1',
+        CidrIp     = f'{suspicious_ip}/32'
+    )
+    
+    # notify security team
+    sns.publish(
+        TopicArn = 'arn:aws:sns:us-east-1:123:security',
+        Message  = f'🚨 Blocked suspicious IP: {suspicious_ip}',
+        Subject  = 'Security Threat Detected'
+    )
+    
+    print(f"Blocked IP: {suspicious_ip}")
+
+4. Log Processing / Alerting
+
+Language: Python ✅
+
+Why Python:
+  simple string parsing
+  requests library → Slack webhook
+  boto3 → CloudWatch
+
+import json
+import urllib.request
+
+SLACK_WEBHOOK = "https://hooks.slack.com/services/xxx"
+
+def lambda_handler(event, context):
+    # decode CloudWatch log
+    import base64, gzip
+    log_data = json.loads(
+        gzip.decompress(
+            base64.b64decode(event['awslogs']['data'])
+        )
+    )
+    
+    # check each log event
+    for log_event in log_data['logEvents']:
+        message = log_event['message']
+        
+        # detect ERROR or CRITICAL
+        if 'ERROR' in message or 'CRITICAL' in message:
+            
+            # send to Slack
+            slack_message = {
+                'text': f'🚨 *Alert detected!*\n```{message}```'
+            }
+            
+            req = urllib.request.Request(
+                SLACK_WEBHOOK,
+                data=json.dumps(slack_message).encode(),
+                headers={'Content-Type': 'application/json'}
+            )
+            urllib.request.urlopen(req)
+            
+            print(f"Alert sent to Slack: {message}")
+
+
+-----------
+For your interview:
+  "I use Python with boto3 for
+   all DevOps Lambda functions
+   because boto3 gives full access
+   to all AWS services with
+   simple readable code" ✅
+
 
 
 
