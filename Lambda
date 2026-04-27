@@ -274,159 +274,351 @@ Engineer gets notified instantly
 Real companies: Every DevOps team ✅
 
 --------
-code
+Full Flow
 
-1. Image/Video Processing
+stress spikes CPU
+        ↓
+CloudWatch detects CPU > 90%
+        ↓
+CloudWatch Alarm triggers
+        ↓
+SNS topic receives alert
+        ↓
+SNS triggers Lambda
+        ↓
+Lambda scales ASG up
+        ↓
+Lambda sends email via SNS
+        ↓
+You receive email alert ✅
 
-Language: Python ✅
+---
+What We Will Build
 
-Why Python:
-  Pillow library  → image resize/compress
-  boto3           → S3 operations
-  OpenCV          → video processing
-  Simple syntax   → easy to maintain
+Step 1: Create Launch Template + ASG
+Step 2: Create SNS Topic + Email subscription
+Step 3: Create Lambda Function
+Step 4: Connect SNS to Lambda
+Step 5: Create CloudWatch Alarm
+Step 6: Test Everything
+
+Step 1: Create Launch Template
+
+EC2 Console
+→ Launch Templates
+→ Create launch template
+
+Launch template name : auto-remediation-lt
+AMI                  : Amazon Linux 2023
+Instance type        : t2.micro
+Key pair             : select your key pair
+
+Network settings:
+  Security group → Create new
+    Name: auto-remediation-sg
+    Inbound rules:
+      SSH  → port 22 → My IP
+      HTTP → port 80 → Anywhere
+
+→ Create launch template ✅
+
+Step 2: Create ASG
+
+EC2 Console
+→ Auto Scaling Groups
+→ Create Auto Scaling Group
+
+Name: auto-remediation-asg
+
+Launch template:
+  → select auto-remediation-lt ✅
+  → Click Next
+
+Network:
+  VPC     : default VPC
+  Subnets : select 2 subnets
+  → Click Next
+
+Load balancing:
+  → Skip
+  → Click Next
+
+Group size:
+  Desired  : 1
+  Minimum  : 1
+  Maximum  : 4
+
+Scaling policies:
+  → None
+  → Click Next
+
+→ Create Auto Scaling Group ✅
+
+Step 3: Create SNS Topic + Email
+
+SNS Console
+→ Topics
+→ Create topic
+
+Type : Standard
+Name : auto-remediation-topic
+→ Create topic ✅
+
+Copy Topic ARN:
+arn:aws:sns:us-east-2:382458445256:auto-remediation-topic
+
+Create Subscription:
+→ Create subscription
+  Protocol : Email
+  Endpoint : your@email.com
+→ Create subscription ✅
+
+Check your email!
+→ Confirm subscription ✅
+
+Step 4: Create Lambda Function
+
+Lambda Console
+→ Create function
+→ Author from scratch
+
+Function name : auto-remediation
+Runtime       : Python 3.12
+
+Permissions:
+  → Create new role with basic Lambda permissions
+
+→ Create function ✅
+
+Paste this code:
 
 import boto3
-from PIL import Image
-import io
-
-def lambda_handler(event, context):
-    s3 = boto3.client('s3')
-    
-    # get uploaded image
-    bucket = event['Records'][0]['s3']['bucket']['name']
-    key    = event['Records'][0]['s3']['object']['key']
-    
-    # download from S3
-    response = s3.get_object(Bucket=bucket, Key=key)
-    image    = Image.open(response['Body'])
-    
-    # generate thumbnail
-    image.thumbnail((200, 200))
-    
-    # save thumbnail back to S3
-    buffer = io.BytesIO()
-    image.save(buffer, format='JPEG')
-    buffer.seek(0)
-    
-    s3.put_object(
-        Bucket=bucket,
-        Key=f'thumbnails/{key}',
-        Body=buffer
-    )
-    
-    print(f"Thumbnail created for {key}")
-
-2. Auto Remediation
-
-Language: Python ✅
-
-Why Python:
-  boto3 → full AWS SDK
-  simple → easy to read
-  fast to write → quick fixes
-
-import boto3
-
-def lambda_handler(event, context):
-    asg    = boto3.client('autoscaling')
-    sns    = boto3.client('sns')
-    
-    # increase ASG capacity
-    asg.set_desired_capacity(
-        AutoScalingGroupName = 'my-asg',
-        DesiredCapacity      = 4        # scale up
-    )
-    
-    # notify team on Slack via SNS
-    sns.publish(
-        TopicArn = 'arn:aws:sns:us-east-1:123:alerts',
-        Message  = '🚨 CPU > 90%! Auto scaled to 4 instances',
-        Subject  = 'Auto Remediation Triggered'
-    )
-    
-    print("Auto remediation complete")
-
-3. Security Automation
-
-Language: Python ✅
-
-Why Python:
-  boto3 → EC2, IAM, GuardDuty APIs
-  quick to write security rules
-  easy to maintain
-
-import boto3
-
-def lambda_handler(event, context):
-    ec2 = boto3.client('ec2')
-    iam = boto3.client('iam')
-    sns = boto3.client('sns')
-    
-    # get suspicious IP from GuardDuty event
-    suspicious_ip = event['detail']['service']\
-                         ['action']['networkConnectionAction']\
-                         ['remoteIpDetails']['ipAddressV4']
-    
-    # block IP in security group
-    ec2.revoke_security_group_ingress(
-        GroupId    = 'sg-12345678',
-        IpProtocol = '-1',
-        CidrIp     = f'{suspicious_ip}/32'
-    )
-    
-    # notify security team
-    sns.publish(
-        TopicArn = 'arn:aws:sns:us-east-1:123:security',
-        Message  = f'🚨 Blocked suspicious IP: {suspicious_ip}',
-        Subject  = 'Security Threat Detected'
-    )
-    
-    print(f"Blocked IP: {suspicious_ip}")
-
-4. Log Processing / Alerting
-
-Language: Python ✅
-
-Why Python:
-  simple string parsing
-  requests library → Slack webhook
-  boto3 → CloudWatch
-
 import json
-import urllib.request
+import os
+import logging
 
-SLACK_WEBHOOK = "https://hooks.slack.com/services/xxx"
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+asg_client = boto3.client('autoscaling', region_name='us-east-2')
+sns_client = boto3.client('sns',         region_name='us-east-2')
+
+ASG_NAME  = os.environ['ASG_NAME']
+SNS_TOPIC = os.environ['SNS_TOPIC_ARN']
+
+def send_email(subject, message):
+    sns_client.publish(
+        TopicArn = SNS_TOPIC,
+        Subject  = subject,
+        Message  = message
+    )
+    logger.info("Email sent via SNS ✅")
 
 def lambda_handler(event, context):
-    # decode CloudWatch log
-    import base64, gzip
-    log_data = json.loads(
-        gzip.decompress(
-            base64.b64decode(event['awslogs']['data'])
+    logger.info("Auto remediation triggered!")
+
+    try:
+        # Get current ASG details
+        response = asg_client.describe_auto_scaling_groups(
+            AutoScalingGroupNames=[ASG_NAME]
         )
-    )
-    
-    # check each log event
-    for log_event in log_data['logEvents']:
-        message = log_event['message']
-        
-        # detect ERROR or CRITICAL
-        if 'ERROR' in message or 'CRITICAL' in message:
-            
-            # send to Slack
-            slack_message = {
-                'text': f'🚨 *Alert detected!*\n```{message}```'
-            }
-            
-            req = urllib.request.Request(
-                SLACK_WEBHOOK,
-                data=json.dumps(slack_message).encode(),
-                headers={'Content-Type': 'application/json'}
+        asg      = response['AutoScalingGroups'][0]
+        current  = asg['DesiredCapacity']
+        max_size = asg['MaxSize']
+
+        logger.info(f"Current: {current} Max: {max_size}")
+
+        if current < max_size:
+            # Scale up by 2
+            new_capacity = min(current + 2, max_size)
+
+            asg_client.set_desired_capacity(
+                AutoScalingGroupName = ASG_NAME,
+                DesiredCapacity      = new_capacity,
+                HonorCooldown        = False
             )
-            urllib.request.urlopen(req)
-            
-            print(f"Alert sent to Slack: {message}")
+
+            logger.info(f"Scaled from {current} to {new_capacity}")
+
+            send_email(
+                subject = "Auto Remediation Triggered!",
+                message = f"""
+Auto Remediation Alert
+──────────────────────
+Reason  : EC2 CPU exceeded 90%
+ASG     : {ASG_NAME}
+Action  : Scaled from {current} to {new_capacity} instances
+Status  : Done! No manual intervention needed ✅
+──────────────────────
+This was handled automatically.
+                """
+            )
+
+        else:
+            logger.info("Already at max capacity!")
+
+            send_email(
+                subject = "Auto Remediation - Manual Action Needed!",
+                message = f"""
+Auto Remediation Alert
+──────────────────────
+Reason  : EC2 CPU exceeded 90%
+ASG     : {ASG_NAME}
+Action  : Already at max capacity ({max_size})
+Status  : Manual intervention needed! ❌
+──────────────────────
+Please investigate immediately.
+                """
+            )
+
+        return {'statusCode': 200}
+
+    except Exception as e:
+        logger.error(f"Error: {str(e)}")
+
+        send_email(
+            subject = "Auto Remediation Failed!",
+            message = f"""
+Auto Remediation Alert
+──────────────────────
+Status : FAILED ❌
+Error  : {str(e)}
+ASG    : {ASG_NAME}
+──────────────────────
+Please investigate immediately.
+            """
+        )
+        raise e
+
+Step 5: Add Environment Variables
+
+Lambda Console
+→ auto-remediation
+→ Configuration tab
+→ Environment variables
+→ Edit
+→ Add:
+
+  Key: ASG_NAME
+  Value: auto-remediation-asg
+
+  Key: SNS_TOPIC_ARN
+  Value: arn:aws:sns:us-east-2:382458445256:auto-remediation-topic
+
+→ Save ✅
+
+
+Step 6: Add IAM Permissions
+
+Lambda Console
+→ auto-remediation
+→ Configuration tab
+→ Permissions
+→ Click Role name
+→ IAM Console opens
+
+→ Add permissions
+→ Create inline policy
+→ JSON tab
+→ Paste:
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "autoscaling:DescribeAutoScalingGroups",
+        "autoscaling:SetDesiredCapacity",
+        "sns:Publish",
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+
+→ Policy name: auto-remediation-policy
+→ Create policy ✅
+
+Step 7: Connect SNS to Lambda
+
+Lambda Console
+→ auto-remediation
+→ Configuration tab
+→ Triggers
+→ Add trigger
+→ Select: SNS
+→ SNS topic: auto-remediation-topic
+→ Add ✅
+
+Step 8: Create CloudWatch Alarm
+
+CloudWatch Console
+→ Alarms
+→ Create alarm
+→ Select metric
+
+EC2
+→ By Auto Scaling Group
+→ CPUUtilization
+→ Select: auto-remediation-asg
+→ Select metric ✅
+
+Conditions:
+  Threshold type : Static
+  Condition      : Greater than
+  Value          : 90
+
+Additional config:
+  Datapoints : 1 out of 1
+  Period     : 1 minute  ← faster for testing
+
+Actions:
+  → Add notification
+  → Alarm state
+  → Select SNS: auto-remediation-topic ✅
+
+Alarm name: ec2-cpu-high-90
+→ Create alarm ✅
+
+Step 9: Test It!
+
+# SSH into EC2
+ssh -i your-key.pem ec2-user@<ec2-ip>
+
+# Install stress
+sudo yum install stress -y
+
+# Spike CPU to 100%
+stress --cpu 4 --timeout 300
+
+# Wait and watch:
+# ✅ CloudWatch alarm triggers
+# ✅ SNS notifies Lambda
+# ✅ Lambda scales ASG
+# ✅ Email received! ✅
+
+Verify Everything Works
+
+EC2 Console → ASG
+  → Desired capacity increases ✅
+
+CloudWatch → Alarms
+  → ec2-cpu-high-90 → In alarm ✅
+
+Lambda → Monitor tab
+  → Invocations increase ✅
+
+CloudWatch → Log Groups
+  → /aws/lambda/auto-remediation
+  → See logs ✅
+
+Your Email inbox
+  → Alert email received ✅
+
 
 
 -----------
