@@ -630,7 +630,69 @@ For your interview:
    simple readable code" ✅
 
 
+-------------
 
+Step 1
++----------------------------------------------+
+| EC2 Auto Scaling Group                       |
+| auto-remediation-asg | min:1 max:4           |
++----------------------------------------------+
+                     |
+                     | CPU > 90%
+                     v
+
+Step 2
++----------------------------------------------+
+| CloudWatch Alarm                             |
+| ec2-cpu-high-90 | CPU > 90%                  |
++----------------------------------------------+
+                     |
+                     | alarm fires
+                     v
+
+Step 3
++----------------------------------------------+
+| SNS Topic                                    |
+| auto-remediation-topic                       |
++----------------------------------------------+
+          /                               \
+         /                                 \
+Subscription 1                     Subscription 2
+         v                                 v
+
++-----------------------------+     +-----------------------------+
+| Email Subscription          |     | Lambda Subscription         |
+| your@email.com              |     | auto-remediation            |
+| Email 1: CPU high alert     |     | Python 3.12 function runs   |
++-----------------------------+     +-----------------------------+
+        |                                     |
+        |                                     v
+        |                         +-----------------------------+
+        |                         | Lambda checks ASG           |
+        |                         | current < max?              |
+        |                         | scale up by 2 ✓             |
+        |                         +-----------------------------+
+        |                                     |
+        |                         +------------+------------+
+        |                         |                         |
+        v                         v                         v
++-----------------------------+   +-----------------------------+
+| (Email already sent)        |   | ASG scales UP ✓             |
+|                             |   | new EC2 instances launched  |
++-----------------------------+   +-----------------------------+
+                                              |
+                                              v
+                                   +-----------------------------+
+                                   | Lambda → SNS publish        |
+                                   | Email 2: Scaled             |
+                                   | 1 → 3 instances ✓           |
+                                   +-----------------------------+
+
+---------------------------------------------------------------
+You receive 2 emails:
+1) CPU is high alert
+2) Scaled 1 → 3 instances
+---------------------------------------------------------------
 
 
 
