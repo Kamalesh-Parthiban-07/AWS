@@ -631,7 +631,16 @@ You receive 2 emails:
 1) CPU is high alert
 2) Scaled 1 → 3 instances
 ---------------------------------------------------------------
+So What is the Difference?
 
+Feature                         | ASG + SNS alone            | ASG + SNS + Lambda
+----------------------------------------------------------------------------------------
+Email on scale event            | Yes                       | Yes
+Custom email message            | No (Raw JSON ugly format) | Yes (Clean readable format)
+Custom logic                    | No                        | Yes
+Check if at max capacity        | No                        | Yes
+Trigger other AWS services      | No                        | Yes
+Slack / PagerDuty alerts        | No                        | Yes
 
 
 
