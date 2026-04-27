@@ -644,5 +644,54 @@ Slack / PagerDuty alerts        | No                        | Yes
 
 
 
+---------------
+                         +------------------------------+
+                         |         EventBridge          |
+                         |     Runs every 30 minutes    |
+                         +--------------+---------------+
+                                        |
+                                      triggers
+                                        |
+                                        v
+      +-------------------------------+-----------------------------+
+      |        Lambda function        |      Env variables          |
+      | EC2 uptime monitor (Python)   |-----------------------------|
+      |                               | SNS_TOPIC_ARN              |
+      |                               | THRESHOLD_HOURS            |
+      |                               | ALLOWED_INSTANCE_IDS       |
+      +---------------+---------------+-----------------------------+
+                      |
+              describe_instances
+                      |
+                      v
+          +-------------------------------+
+          |         EC2 instances         |
+          | Check uptime vs threshold     |
+          |           (8hrs)              |
+          +---------------+---------------+
+                      |
+                      v
+          +-------------------------------+
+          |      Uptime >= 8 hrs?         |
+          | Compare launch time vs cutoff |
+          +-----------+-------------------+
+                      | 
+           YES        |        NO
+            |         |         |
+            v         |         v
++----------------+   |   +----------------------+
+|    SNS topic   |   |   |     Exit quietly     |
+| Publishes alert|   |   |    No alert sent     |
++--------+-------+   |   +----------------------+
+         |           |
+         v           |
++----------------+   |
+|   Email alert  |   |
+| Team notified  |   |
++----------------+   |
+
+< 8 hrs uptime → ignored (no action)
+
+EventBridge (every 30 min) → Lambda checks your allowed EC2 instances → compares uptime against the 8-hour threshold → if over the limit, SNS fires an email alert → if under, it exits silently with no noise.
 
 
