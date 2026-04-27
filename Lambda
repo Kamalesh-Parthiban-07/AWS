@@ -54,6 +54,12 @@ Each Lambda runs 15 mins max
 Step Functions orchestrates them
 Total workflow can run 1 year ✅
 
+Quick comparison:
+
+Lambda → 15 minutes
+Step Functions (Standard) → 1 year
+Step Functions (Express) → 5 minutes
+
 ⚙️ How it works
 You write a function (Python, Node.js, Java, etc.)
 You set a trigger (event)
