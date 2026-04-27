@@ -700,4 +700,10 @@ Slack / PagerDuty alerts        | No                        | Yes
 
 EventBridge (every 30 min) → Lambda checks your allowed EC2 instances → compares uptime against the 8-hour threshold → if over the limit, SNS fires an email alert → if under, it exits silently with no noise.
 
+In AWS Lambda, there’s no built-in cron scheduler. Instead, you use:
 
+How it works:
+Create a rule in EventBridge
+Choose Schedule
+Use cron or rate expression
+Set Lambda as target
