@@ -10,6 +10,50 @@ You upload your code (called a function)
 AWS runs it only when triggered
 You don’t manage servers, scaling, or infrastructure
 
+Lambda Timeout Limits
+
+Minimum timeout : 1 second
+Maximum timeout : 15 minutes (900 seconds)
+Default timeout : 3 seconds
+
+Lambda Other Limits
+
+Timeout        : 15 minutes max
+Memory         : 128 MB to 10 GB
+Storage (/tmp) : 512 MB to 10 GB
+Package size   : 50 MB (zip) / 250 MB (unzipped)
+Concurrency    : 1000 per region (default)
+Payload size   : 6 MB sync / 256 KB async
+
+Simple Answer
+
+Lambda = short tasks only ✅
+  max 15 minutes
+  no exceptions
+
+Need longer?
+  ✅ ECS/Fargate    → no limit
+  ✅ EC2            → no limit
+  ✅ Step Functions → chain lambdas
+  ✅ AWS Batch      → batch jobs
+
+Step Functions — Solve Lambda Limit
+
+Long task that needs 2 hours:
+
+Step Functions:
+  Lambda 1 (15 min) → process chunk 1
+        ↓
+  Lambda 2 (15 min) → process chunk 2
+        ↓
+  Lambda 3 (15 min) → process chunk 3
+        ↓
+  ...continues until done ✅
+
+Each Lambda runs 15 mins max
+Step Functions orchestrates them
+Total workflow can run 1 year ✅
+
 ⚙️ How it works
 You write a function (Python, Node.js, Java, etc.)
 You set a trigger (event)
