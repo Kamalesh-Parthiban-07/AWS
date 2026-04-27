@@ -295,6 +295,10 @@ You receive email alert ✅
 ---
 What We Will Build
 
+Auto Remediation (pure DevOps)
+
+This is most impressive to say in DevOps interview:
+
 Step 1 — Create Launch Template:
 
 EC2 Console → Launch Templates → Create launch template
