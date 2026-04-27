@@ -1,0 +1,236 @@
+What AWS Lambda actually is?
+
+https://www.youtube.com/watch?v=OJrxbr9ebDE
+
+s3 trigger with lamda when file upload
+
+It’s a serverless compute service:
+
+You upload your code (called a function)
+AWS runs it only when triggered
+You don’t manage servers, scaling, or infrastructure
+
+⚙️ How it works
+You write a function (Python, Node.js, Java, etc.)
+You set a trigger (event)
+Lambda runs your code automatically
+
+Common triggers:
+File upload to Amazon S3
+HTTP request via Amazon API Gateway
+Database updates (e.g., DynamoDB)
+Scheduled jobs (cron)
+
+
+All triggers:
+
++---------------------+----------------------------------------------+
+| Trigger             | Example                                      |
++---------------------+----------------------------------------------+
+| S3                  | File uploaded → resize image                 |
+| API Gateway         | HTTP request → return response               |
+| DynamoDB            | Record changed → notify user                 |
+| SQS                 | Message in queue → process it                |
+| SNS                 | Notification → send email                    |
+| CloudWatch Events   | Every 5 mins → run job                       |
+| Cognito             | User signup → send welcome email             |
+| CodePipeline        | Build done → notify team                     |
++---------------------+----------------------------------------------+
+
+
+How it works:
+
+Trigger happens
+    ↓
+AWS spins up container
+    ↓
+Runs your function
+    ↓
+Returns result
+    ↓
+Container destroyed
+    ↓
+You pay only for execution time ✅
+
+ Real world use cases:
+
+✅ Image resizing when uploaded to S3
+✅ Send welcome email on user signup
+✅ Process payments asynchronously
+✅ ETL data pipelines
+✅ Scheduled reports (cron)
+✅ Webhook handlers
+✅ Chat bots
+
+❌ Long running processes (use ECS/EKS)
+❌ Heavy computation (use EC2)
+❌ Persistent connections (use EC2)
+❌ Large file processing > 15min
+
+Here are the top 5 must-know Lambda interview topics:
+
+1. Cold Start
+
+What:
+  First invocation → AWS spins up container → slow
+  Subsequent calls → container warm → fast
+
+Why it happens:
+  Lambda scales to zero when not in use
+  New container needed on first call
+
+How to fix:
+  Provisioned concurrency → pre-warm containers
+  Ping every 5 mins → keep warm
+  Smaller package size → faster startup
+  Python/Node → faster than Java
+
+2. Lambda vs EC2
+
+Lambda:
+  ✅ no server management
+  ✅ scales to zero
+  ✅ pay per execution
+  ❌ max 15 min
+  ❌ stateless
+  ❌ cold start
+
+EC2:
+  ✅ long running
+  ✅ stateful
+  ✅ full control
+  ❌ pay even idle
+  ❌ manage yourself
+
+3. Triggers
+
+S3          → file uploaded
+API Gateway → HTTP request
+CloudWatch  → scheduled cron
+SQS         → queue message
+SNS         → notification
+DynamoDB    → table change
+Cognito     → user signup
+
+4. Concurrency
+
+What:
+  Number of Lambda instances
+  running at same time
+
+Types:
+  Reserved    → guarantee X for one function
+  Provisioned → pre-warmed, no cold start
+
+Default limit:
+  1000 per region
+  Can request increase from AWS
+
+Throttle:
+  Limit exceeded → Lambda throttled
+  Fix → SQS queue in front of Lambda
+
+5. VPC Lambda
+
+When to use:
+  Lambda needs RDS access ✅
+  Lambda needs private resources ✅
+
+How:
+  Configure VPC + private subnet + SG
+  Lambda gets private IP
+
+Problem:
+  Cold start increases (ENI creation)
+  Needs NAT Gateway for internet access
+
+Best practice:
+  Only put Lambda in VPC when necessary
+  Not needed for S3, DynamoDB (use VPC endpoints)
+-------------------------------------------------
+3. Triggers
+
+S3          → file uploaded
+
+1. Image/Video Processing (most common)
+
+Netflix / Instagram / Youtube style:
+
+User uploads video/image
+        ↓
+S3 trigger → Lambda
+        ↓
+Lambda compresses image
+Lambda generates thumbnails
+Lambda converts video format
+        ↓
+Stores back to S3
+        ↓
+CDN serves optimised content
+
+Real companies: Instagram, Pinterest, Airbnb
+
+---
+Auto Remediation (pure DevOps)
+
+This is most impressive to say in DevOps interview:
+
+CloudWatch detects EC2 CPU > 90%
+        ↓
+CloudWatch alarm → Lambda
+        ↓
+Lambda automatically:
+  increases ASG desired capacity
+  adds more EC2 instances
+  sends Slack alert "Auto scaled!"
+        ↓
+No human intervention needed ✅
+
+Real companies: Netflix, Amazon DevOps teams
+
+---
+
+Security Automation (DevOps + Security)
+
+AWS GuardDuty detects suspicious activity
+        ↓
+EventBridge → Lambda
+        ↓
+Lambda automatically:
+  blocks IP in Security Group
+  revokes compromised IAM credentials
+  takes snapshot of affected EC2
+  notifies security team
+        ↓
+Threat contained in seconds ✅
+
+Real companies: Any enterprise security team
+
+---
+Log Processing (most relatable for DevOps)
+
+Any production system:
+
+Application writes logs to CloudWatch
+        ↓
+CloudWatch → Lambda (on error pattern)
+        ↓
+Lambda detects ERROR or CRITICAL
+        ↓
+Lambda sends alert to:
+  Slack channel
+  PagerDuty
+  Email to on-call engineer
+        ↓
+Engineer gets notified instantly
+
+Real companies: Every DevOps team ✅
+
+
+
+
+
+
+
+
+
