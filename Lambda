@@ -232,6 +232,9 @@ No human intervention needed ✅
 
 Real companies: Netflix, Amazon DevOps teams
 
+
+"In our production setup we implemented auto remediation where CloudWatch monitors EC2 CPU and when it exceeds 90% it triggers a Lambda function via SNS. The Lambda automatically increases ASG desired capacity by 2 instances and sends a Slack notification to our DevOps channel. This eliminated manual intervention and reduced response time from 10 minutes to under 2 minutes."
+This is very impressive in DevOps interviews! ✅
 ---
 
 Security Automation (DevOps + Security)
