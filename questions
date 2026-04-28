@@ -140,3 +140,19 @@ Availability Zone (must match your Amazon EC2 instance)
 Volume type (gp3, io2, etc.)
 Size (can increase, not decrease)
 Click Create Volume
+
+can we create launch template using AMI and how?
+
+Yes! You can create Launch Template using AMI. Here are all the ways:
+
+AMI in Launch Template:
+  ✅ AWS provided  → quickstart AMIs
+  ✅ Custom AMI    → your own image  --- here
+  ✅ Marketplace   → pre-built software
+  ✅ Community     → shared AMIs
+
+Methods to create:
+  ✅ Console       → browse and select
+  ✅ CLI           → command line
+  ✅ Terraform     → infrastructure as code
+  ✅ Custom AMI    → create from existing EC2
