@@ -1,0 +1,64 @@
+“How do you reduce AWS cost?”
+
+Answer:
+
+Remove unused resources
+Right-size instances
+Use Reserved Instances
+Enable Auto Scaling
+Use S3 lifecycle
+Monitor with Cost Explorer
+
+
+What is RDS in AWS?
+
+🧠 What AWS handles for you
+Server setup
+OS patching
+Database installation
+Backups                     ---    Daily backups + point-in-time recovery
+Scaling                     ---    Vertical scaling (increase CPU/RAM) , Storage auto scaling
+High availability           ---    Automatically creates standby DB in another zone
+
+👉 So you don’t need to manually install MySQL/PostgreSQL on EC2.
+
+📦 Supported Databases
+
+RDS supports:
+
+MySQL
+PostgreSQL
+MariaDB
+Oracle
+SQL Server
+Amazon Aurora (AWS own DB)
+
+RDS is a managed relational database service in AWS that handles database setup, backups, patching, and scaling, allowing us to focus on application development instead of infrastructure.
+
+
+Difference between RDS & DynamoDB?
+
+Example: Banking app (accounts, transactions)
+
+RDS (Relational Database Service)
+Type: Relational (SQL)
+Structure: Tables, rows, columns
+Schema: Fixed (predefined)
+Query Language: SQL
+Examples: MySQL, PostgreSQL, Oracle
+
+
+DynamoDB
+Type: NoSQL (key-value / document)
+Structure: Flexible (no fixed schema)
+Schema: Dynamic
+Query Language: No SQL (API-based)
+Fully serverless
+
+Example:
+Gaming apps
+Leaderboards, player sessions
+E-commerce (high traffic parts)
+Shopping cart, user sessions
+Social media apps
+Likes, comments, feeds
