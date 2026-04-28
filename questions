@@ -24,3 +24,10 @@ ALB → ASG → EC2
 RDS (Replica / Secondary DB)
 Global Layer
 Route 53 → directs traffic
+
+What happens to the data when we change the instance type of an EC2 instance? Are there any scenarios where data loss can occur?
+
+Changing from t2.micro → t2.large does NOT cause data loss as long as:
+
+You didn’t terminate the instance
+You’re using EBS (default)
