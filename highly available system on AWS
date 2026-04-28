@@ -1,0 +1,3 @@
+How would you design a highly available system on AWS?
+
+To design a highly available system on AWS, I would deploy resources across multiple Availability Zones using Elastic Load Balancing and Auto Scaling to handle instance failures. To handle regional failures, I’d use Route 53 with health checks and failover routing to redirect traffic to a secondary region. This ensures no single point of failure across infrastructure layers.
