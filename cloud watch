@@ -1,0 +1,96 @@
+what is cloud watch?
+
+is a monitoring tool it collects and tracks metrics, logs, and events from your AWS resources and applications.
+
+A typical CloudWatch dashboard might show:
+
+CPU usage of your EC2 servers
+Number of Lambda invocations
+Error rates and latency
+Log insights queries
+Alarm statuses
+
+by default when we create ec2 instance cloud watch is enabled?
+
+Basic Monitoring (Free) — Enabled by Default ✅
+When you create an EC2 instance, Basic Monitoring is automatically enabled for free.
+It collects metrics like:
+
+CPU Utilization
+Network In/Out
+Disk Read/Write
+Status Check Failed
+
+❌ Not collected by default (even with Basic Monitoring):
+
+Memory Usage (RAM)  — AWS can't see inside your OS
+Disk Space          — AWS can't see inside your OS
+Running Processes   — AWS can't see inside your OS
+
+To collect these, you need to install the CloudWatch Agent manually inside your EC2 instance.
+
+how to set 80 percent CPU we should get notification in watch cloud?
+
+
+Step-by-Step Guide
+
+Step 1 — Open CloudWatch
+
+Go to AWS Console
+Search for CloudWatch
+Click on Alarms → All Alarms
+Click Create Alarm
+
+
+Step 2 — Select Metric
+
+Click Select Metric
+Choose EC2 → Per-Instance Metrics
+Search for your Instance ID
+Select CPUUtilization
+Click Select Metric
+
+
+Step 3 — Set the Threshold (80%)
+
+Statistic → Average
+Period → 5 minutes
+Threshold type → Static
+Condition → Greater than or equal to
+Value → 80
+
+
+This means → "Alert me when CPU is >= 80% for 5 minutes"
+
+
+Step 4 — Set Notification (SNS)
+
+Under Notification section
+Select In alarm state
+Choose an existing SNS topic OR create a new one and create subscription and select email
+Enter your email address
+AWS will send a confirmation email — you must click confirm ✅
+
+
+Step 5 — Name the Alarm
+
+Give it a name like EC2-CPU-High-Alert
+Add a description (optional)
+Click Create Alarm
+
+EC2 CPU Usage
+      ↓
+CloudWatch monitors every 5 mins
+      ↓
+CPU >= 80%?
+      ↓
+Alarm triggers
+      ↓
+SNS sends Email/SMS notification 📧
+
+
+
+To increase CPU percent
+
+while true; do echo; done
+
