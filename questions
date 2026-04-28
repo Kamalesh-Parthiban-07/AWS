@@ -141,6 +141,50 @@ Volume type (gp3, io2, etc.)
 Size (can increase, not decrease)
 Click Create Volume
 
+why cant we move the snapshot to other region and creat EBS?
+
+Copy Snapshot to Another Region
+
+Snapshot in us-east-1
+        ↓
+Copy Snapshot → us-west-2
+        ↓
+New snapshot in us-west-2 ✅
+        ↓
+Create EBS Volume in us-west-2 ✅
+--
+Step by Step — Copy Snapshot to Another Region
+
+EC2 Console
+→ Snapshots
+→ Select your snapshot
+→ Actions
+→ Copy snapshot
+
+  Destination region : us-west-2  ← choose target region
+  Description        : copied from us-east-1
+  Encryption         : optional
+
+→ Copy snapshot ✅
+⏳ wait for copy to complete
+--
+Then Create Volume in New Region
+
+Switch to us-west-2 region
+        ↓
+EC2 Console
+→ Snapshots
+→ Select copied snapshot
+→ Actions
+→ Create volume
+
+  AZ          : us-west-2a
+  Volume type : gp3
+  Size        : same or larger
+
+→ Create volume ✅
+
+------------------------------------------------------------
 can we create launch template using AMI and how?
 
 Yes! You can create Launch Template using AMI. Here are all the ways:
