@@ -79,3 +79,64 @@ Fault-tolerant workloads
 Instances run on dedicated hardware (but not a whole server)
 Less isolation than Dedicated Hosts
 Used when hardware isolation is required
+
+---
+
+Create AMI from Existing EC2 (Most Common)?
+
+✅ Steps:
+Go to EC2 Dashboard
+Click Instances
+Select your instance
+Click Actions → Image and templates → Create Image
+Provide:
+Image name
+Description
+Click Create Image
+
+What happens in background
+AWS takes snapshot of volumes using Amazon Elastic Block Store
+Creates AMI from that snapshot
+
+
+how to copy ami from one region to another region?
+
+✅ Steps:
+Go to EC2 Dashboard
+Click AMIs (left panel)
+Select your AMI
+Click Actions → Copy AMI
+Choose:
+Destination region
+AMI name
+Click Copy AMI
+
+What happens in background
+AWS copies associated snapshots from
+Amazon Elastic Block Store
+Creates a new AMI in target region
+
+
+how to create snapshot?
+
+✅ Steps:
+Go to EC2 Dashboard
+Click Volumes
+Select the EBS volume
+Click Actions → Create Snapshot
+Enter:
+Description (optional)
+Click Create Snapshot
+
+How to create EBS using snapshot?
+
+✅ Steps:
+Go to EC2 Dashboard
+Click Snapshots
+Select your snapshot
+Click Actions → Create Volume
+Choose:
+Availability Zone (must match your Amazon EC2 instance)
+Volume type (gp3, io2, etc.)
+Size (can increase, not decrease)
+Click Create Volume
