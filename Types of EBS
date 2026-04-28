@@ -1,0 +1,49 @@
+Types of EBS
+
+gp2, gp3 (general purpose SSD) – used for general workloads, app servers, boot volumes
+io1, io2 (provisioned IOPS SSD) – used for high-performance databases (like Oracle E-Business Suite DB)
+st1 (throughput optimized HDD) – used for big data, logs, and data warehouses
+sc1 (cold HDD) – used for archival and infrequently accessed data
+
+👉 st1 and sc1 are HDD volumes, and:
+
+❌ Not suitable for OS (root volume)
+❌ Slower random I/O
+✔️ Designed for data storage only
+
+Key Limitation
+
+👉 You CANNOT use st1 or sc1 as root (boot) volumes
+
+That’s why they don’t appear in default launch options.
+
+How to use st1 / sc1 then?
+
+You can still use them like this:
+
+Launch EC2 with gp3 (root volume)
+Go to EBS Volumes
+Create a new volume:
+Select st1 or sc1
+Attach it to the EC2 instance
+Mount it inside OS
+
+does ebs volume dynamically increase?
+
+Yes, EBS volumes can be dynamically increased using Elastic Volumes without downtime, but we cannot decrease the size
+After Increasing Size
+
+Same as other volumes:
+👉 You must extend filesystem inside OS
+
+
+can we dynamically change the ebs type?
+
+
+👉 You can change volume types like:
+
+gp2 → gp3
+gp3 → io1/io2
+st1 → gp3
+
+👉 And this can be done without stopping your Amazon EC2 instance.
