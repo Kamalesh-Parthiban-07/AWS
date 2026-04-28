@@ -1,3 +1,26 @@
 How would you design a highly available system on AWS?
 
 To design a highly available system on AWS, I would deploy resources across multiple Availability Zones using Elastic Load Balancing and Auto Scaling to handle instance failures. To handle regional failures, I’d use Route 53 with health checks and failover routing to redirect traffic to a secondary region. This ensures no single point of failure across infrastructure layers.
+
+
+What is the best way to implement a fault-tolerant, multi-region AWS architecture with EC2 instances in Auto Scaling Groups behind Application Load Balancers, and use Route 53 routing policies to handle regional failover?
+
+Yes—you absolutely can:
+
+✔ 2 EC2 instances per region in ASG
+✔ Load balancer per region
+✔ Route 53 for routing & failover
+✔ Multi-region resilience
+
+🏗️ How RDS Fits Into Your Architecture
+
+Now your full setup becomes:
+
+Region A (Primary)
+ALB → ASG → EC2
+RDS (Primary DB)
+Region B (Secondary)
+ALB → ASG → EC2
+RDS (Replica / Secondary DB)
+Global Layer
+Route 53 → directs traffic
