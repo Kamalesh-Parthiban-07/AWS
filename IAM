@@ -8,3 +8,70 @@ Roles: Temporary access identities for services or users
 Policies: JSON rules that define what actions are allowed or denied
 
 👉 In short: IAM controls who can access what in AWS.
+-------------------------------------
+
+Roles: Temporary access identities for services or users
+
+once service used the role does it delete automatically?
+
+No, the role does NOT delete automatically.
+---
+How it actually works:
+
+Lambda assumes IAM Role
+        ↓
+AWS STS (Security Token Service)
+generates TEMPORARY credentials:
+  Access Key ID     → expires in 1 hour
+  Secret Access Key → expires in 1 hour
+  Session Token     → expires in 1 hour
+        ↓
+Lambda uses credentials to call AWS APIs
+        ↓
+Credentials expire ✅ (auto deleted)
+        ↓
+Role still exists ❌ (never deleted)
+        ↓
+Next time Lambda runs →
+  gets fresh temporary credentials again
+-------
+Role lifecycle:
+
+Created:
+  You create role once
+  attach policies once
+  assign to Lambda once
+        ↓
+Every Lambda invocation:
+  Lambda assumes role
+  gets temp credentials (1hr)
+  does its work
+  credentials expire ✅
+  role stays ❌
+        ↓
+Role deleted:
+  ONLY when you manually delete it
+  or terraform destroy runs
+  never automatic
+---
+Simple summary:
+
+IAM Role:
+  ❌ never deleted automatically
+  ✅ stays forever until you delete
+
+Temporary credentials:
+  ✅ auto expire (15 min to 12 hours)
+  ✅ new ones issued on next use
+  ✅ this is what "temporary" means
+
+"Temporary" in IAM Role =
+  temporary CREDENTIALS
+  NOT temporary role ✅
+
+The role is permanent — only the credentials it generates are temporary!
+
+
+
+
+
