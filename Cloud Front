@@ -27,6 +27,42 @@ Why use CloudFront in front of ALB:
 | WAF integration       | Block malicious traffic       |
 | SSL termination       | HTTPS at edge                 |
 | Cost reduction        | Less traffic hits ALB         |
+------
+SSL termination 
+-------
+SSL = HTTPS encryption
+Termination = where encryption ENDS
+
+Without SSL Termination
+
+User browser
+  sends HTTPS encrypted request
+        ↓
+encrypted all the way
+        ↓
+encrypted all the way
+        ↓
+Your EC2/Pod
+  decrypts here
+  processes request
+
+With CloudFront SSL Termination
+
+User browser
+  sends HTTPS encrypted request
+        ↓
+CloudFront Edge
+  DECRYPTS here ← SSL terminates here ✅
+  reads plain HTTP
+        ↓
+plain HTTP (unencrypted)
+        ↓
+Your ALB/NLB
+        ↓
+Your EC2/Pod
+  receives plain HTTP
+  no decryption needed ✅
+------------------------------------------
 
 does it support NLB?
 
