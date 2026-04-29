@@ -668,3 +668,55 @@ Status           → Enabled
 Source scope     → Entire bucket OR specific prefix/tag
 Destination      → Choose destination bucket
 IAM Role         → Create new or use existing
+
+--------------------
+What is S3 Transfer Acceleration?
+
+Normal S3 upload:
+  Your laptop (India)
+        ↓
+  long distance internet
+        ↓
+  S3 bucket (us-east-1) ← slow ❌
+
+S3 Transfer Acceleration:
+  Your laptop (India)
+        ↓
+  nearest CloudFront edge
+  (Mumbai) ← close! ✅
+        ↓
+  AWS private network
+  (super fast backbone)
+        ↓
+  S3 bucket (us-east-1) ✅ fast!
+
+---
+S3 Transfer Acceleration:
+  ✅ uses CloudFront edge locations
+  ✅ AWS private backbone network
+  ✅ faster uploads from far regions
+  ✅ easy to enable (one click)
+  ✅ special endpoint URL
+  ⚠️ extra cost $0.04/GB
+  ❌ no benefit same region
+
+-------
+How It Works
+
+Step 1:
+  Enable acceleration on bucket
+
+Step 2:
+  Use special endpoint:
+  my-bucket.s3-accelerate.amazonaws.com
+  instead of:
+  my-bucket.s3.amazonaws.com
+
+Step 3:
+  Upload goes to nearest
+  CloudFront edge location
+        ↓
+  AWS routes through
+  optimized private network
+        ↓
+  reaches S3 bucket fast ✅
