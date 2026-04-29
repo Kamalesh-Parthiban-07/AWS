@@ -200,3 +200,59 @@ Methods to create:
   ✅ CLI           → command line
   ✅ Terraform     → infrastructure as code
   ✅ Custom AMI    → create from existing EC2
+
+-----------------------------------------------------
+
+can we change instance type without down time?
+
+Single EC2:
+  ❌ needs downtime
+  stop → change → start
+
+ASG + Instance Refresh:
+  ✅ zero downtime
+  rolling update
+  ALB routes to healthy instances
+
+ASG + Blue/Green:
+  ✅ zero downtime
+  instant rollback
+  more resources needed
+
+Best practice for prod:
+  ✅ always use ASG
+  ✅ instance refresh
+  ✅ min healthy 50%+
+
+-----------------------------------------
+
+Launch Template = Complete EC2 Definition
+
+Launch Template
+├── AMI              → OS + software (image)
+├── Instance Type    → CPU + RAM
+├── EBS              → disk storage
+├── Key Pair         → SSH access
+├── Security Group   → firewall rules
+├── IAM Role         → AWS permissions
+├── User Data        → startup script
+└── Network          → VPC + subnet
+
+--------------
+
+AMI           = image  ✅
+              → what OS
+              → what software pre-installed
+              → Amazon Linux, Ubuntu, Windows
+
+Instance Type = CPU + RAM ✅
+              → t3.micro  = 1 CPU  1 GB RAM
+              → t3.medium = 2 CPU  4 GB RAM
+              → t3.large  = 2 CPU  8 GB RAM
+
+EBS           = disk ✅
+              → how much storage
+              → gp3, io2, etc
+              → 8 GB, 20 GB, 100 GB
+
+----
