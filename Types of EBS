@@ -39,6 +39,12 @@ Same as other volumes:
 
 can we dynamically change the ebs type?
 
+Yes! EBS Volume Type Change — Zero Downtime no data loss
+
+migration completes silently
+        ↓
+new type active — zero downtime ✅
+zero data loss ✅
 
 👉 You can change volume types like:
 
