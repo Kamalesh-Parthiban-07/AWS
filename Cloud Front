@@ -244,9 +244,21 @@ Akamai DNS              →      Route53
 Akamai = one vendor, one contract, one config
 AWS    = four separate services, four configs
 
+-----
 
+Simple answer:
 
+CloudFront + ALB = ✅ BEST for most cases
+  simple, native AWS, no NGINX needed
+  CloudFront does not need static IP
 
+CloudFront + NLB = only when:
+  non HTTP traffic
+  ultra low latency needed
+  special TCP requirements
+
+For normal web apps + APIs:
+  CloudFront + ALB ✅ always better
 
 
 
