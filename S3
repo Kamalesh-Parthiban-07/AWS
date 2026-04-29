@@ -20,18 +20,121 @@ Bucket Policy              ❌ None (no public access granted)
 
 What is the max object size?
 
-| Upload Type             | Maximum Size   |
-| ----------------------- | -------------- |
-| Single PUT upload       | **5 GB**       |
-| Multipart upload        | **Up to 5 TB** |
-| Overall max object size | **5 TB**       |
+Upload Methods
 
-| File Size         | Recommended Method                         |
-| ----------------- | ------------------------------------------ |
-| **< 100 MB**      | Single PUT upload                          |
-| **100 MB – 5 GB** | Multipart upload *(recommended)*           |
-| **5 GB – 5 TB**   | Multipart upload *(required)*              |
-| **> 5 TB**        | ❌ Not supported (must split before upload) |
+1. Single PUT Upload
+   ─────────────────
+   Max size : 5 GB
+   Use for  : small files
+   Simple   : one request ✅
+
+2. Multipart Upload
+   ─────────────────
+   Max size : 5 TB ✅
+   Min part : 5 MB
+   Max parts: 10,000 parts
+   Use for  : large files
+   Parallel : yes ✅
+
+3. S3 Transfer Acceleration
+   ──────────────────────────
+   Uses CloudFront edge
+   faster uploads ✅
+   good for large files
+   across regions
+---
+Multipart Upload — How it Works
+
+5 TB file
+        ↓
+split into parts
+  Part 1 → 500 MB
+  Part 2 → 500 MB
+  Part 3 → 500 MB
+  ...
+  Part 10→ 500 MB
+        ↓
+upload all parts
+in parallel ✅
+        ↓
+S3 combines all parts
+into one object ✅
+---------------------------
+
+Simple Answer
+
+5 TB object:
+  ✅ S3 supports up to 5 TB per object
+  ❌ cannot use single PUT (max 5 GB)
+  ✅ must use multipart upload
+
+AWS CLI and boto3
+handle multipart automatically ✅
+no extra code needed
+--
+Multipart Upload via CLI
+
+# AWS CLI handles multipart automatically
+# for files over 8 MB
+
+aws s3 cp largefile.zip s3://my-bucket/
+# CLI automatically uses multipart ✅
+
+# Set custom threshold
+aws s3 cp largefile.zip s3://my-bucket/ \
+  --multipart-threshold 64MB \
+  --multipart-chunksize 64MB
+
+------
+Multipart Upload via Python boto3
+
+import boto3
+
+s3 = boto3.client('s3')
+
+# boto3 handles multipart automatically
+s3.upload_file(
+    'largefile.zip',      # local file
+    'my-bucket',          # bucket
+    'largefile.zip',      # S3 key
+    Config=boto3.s3.transfer.TransferConfig(
+        multipart_threshold = 1024 * 25,    # 25 MB
+        multipart_chunksize = 1024 * 25,    # 25 MB chunks
+        max_concurrency     = 10,           # parallel uploads
+        use_threads         = True
+    )
+)
+print("Upload complete ✅")
+----------------------
+Right Tool for Right Job
+
+Small file (under 10 GB):
+  ✅ Lambda → quick upload
+
+Large file (5 TB):
+  ✅ EC2 instance    → run python script
+  ✅ AWS DataSync    → managed transfer
+  ✅ S3 multipart    → from local machine
+  ✅ AWS Snowball    → physical device
+                       for massive data
+----------------------------
+
+we can use step function right?
+
+Yes! Step Functions can handle large uploads by breaking into chunks! Here's how:
+
+Yes Step Functions works! ✅
+  → breaks upload into chunks
+  → each Lambda handles one chunk
+  → Step Functions orchestrates
+  → no server needed
+  → handles 5 TB ✅
+
+But for simplicity:
+  EC2 Python script = easier ✅
+  Step Functions    = serverless ✅
+
+----------------------------------
 
 
 How to make object public?
