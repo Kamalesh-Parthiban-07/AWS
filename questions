@@ -256,3 +256,203 @@ EBS           = disk ✅
               → 8 GB, 20 GB, 100 GB
 
 ----
+Blue green do we say for route 53 or ASG?
+--
+Route 53 Blue/Green — How it Works
+
+Route 53 Weighted Routing:
+
+Blue:
+  Record : myapp.com
+  Target : Blue ALB
+  Weight : 100 → 0
+
+Green:
+  Record : myapp.com
+  Target : Green ALB
+  Weight : 0 → 100
+
+Switch:
+  change weights in Route 53 ✅
+---
+
+ASG Blue/Green — How it Works
+
+ALB Listener Rule:
+
+Blue TG  (old ASG) : weight 100 → 0
+Green TG (new ASG) : weight 0 → 100
+
+Switch:
+  change weights in ALB ✅
+  instant! no DNS delay
+
+-=---
+
+Question: "How do you do Blue/Green?"
+
+Best answer:
+  "We use ALB + ASG Blue/Green
+   for application deployments
+   instant traffic switch
+   zero downtime
+   instant rollback
+
+   We use Route 53 Blue/Green
+   for region level switching
+   or disaster recovery"
+
+-----------
+
+                         +------------------+
+                         |      Users       |
+                         +--------+---------+
+                                  |
+                                  v
+                         +------------------+
+                         |     Route 53     |
+                         | DNS → points ALB |
+                         +--------+---------+
+                                  |
+                                  v
+                  +----------------------------------+
+                  | Application Load Balancer (ALB)  |
+                  | Listener port 80/443 – weighted  |
+                  +-----------+----------------------+
+                              |
+            ------------------+------------------
+            |                                     |
+   100% traffic                           0% traffic
+            |                                     |
+            v                                     v
+ +----------------------+           +------------------------+
+ |   Blue Target Group  |           |   Green Target Group   |
+ | Receiving 100%       |           | Standby – 0% traffic   |
+ +----------+-----------+           +-----------+------------+
+            |                                   |
+            v                                   v
+ +----------------------+           +------------------------+
+ |       Blue ASG       |           |       Green ASG        |
+ | Old version          |           | New version            |
+ +----------+-----------+           +-----------+------------+
+            |                                   |
+            v                                   v
+   +------------------+               +------------------+
+   |      EC2 #1      |               |      EC2 #1      |
+   |    ami-old123    |               |    ami-new456    |
+   +------------------+               +------------------+
+   |      EC2 #2      |               |      EC2 #2      |
+   |    ami-old123    |               |    ami-new456    |
+   +------------------+               +------------------+
+            |                                   |
+            v                                   v
+ +------------------------------+   +------------------------------+
+ | Launch Template (blue)       |   | Launch Template (green)      |
+ | AMI: ami-old123 | t2.micro   |   | AMI: ami-new456 | t2.micro   |
+ +------------------------------+   +------------------------------+
+
+---------------------------------------------------------------
+
+Change ALB target group weights to switch or rollback
+
+Traffic switching:
+To green → weight 0 → 100
+Rollback → weight 100 → 0
+
+Users → Route 53 → ALB
+  ALB splits traffic by weight:
+    Blue TG  → 100% → Blue ASG  → EC2 (ami-old123)
+    Green TG →   0% → Green ASG → EC2 (ami-new456)
+
+To deploy new version:
+  Change ALB weights → Blue 0% / Green 100% ✅
+
+To rollback:
+  Change ALB weights → Blue 100% / Green 0% ✅
+--------------------------------------------------
+
+Weight is changed in ALB Listener Rules
+
+How to Change Weight — Console
+
+EC2 Console
+→ Load Balancers
+→ Select your ALB
+→ Listeners tab
+→ Click HTTP:80
+→ View/edit rules
+→ Select default rule
+→ Edit rule
+
+  Forward to:
+    Blue TG  → Weight: 100  ← change to 0
+    Green TG → Weight: 0    ← change to 100
+
+→ Save ✅
+
+You Need Only 1 HTTP and 1 HTTPS Listener in ALB
+-------------------------
+Total = 2 target groups ✅ for HTTPS
+--------------------------
+HTTP:80 listener
+        ↓
+  redirects to HTTPS → no TG needed ✅
+
+HTTPS:443 listener
+        ↓
+  Blue TG  ← same TG used here ✅
+  Green TG ← same TG used here ✅
+----------
+Full Architecture
+
+HTTP:80 listener
+  → redirect to HTTPS:443
+  → NO target group needed ✅
+
+HTTPS:443 listener
+  → Blue Target Group  (weight 100)
+  → Green Target Group (weight 0)
+
+Blue Target Group
+  → Blue ASG EC2 instances ✅
+
+Green Target Group
+  → Green ASG EC2 instances ✅
+--------------------
+
+Target Group Settings
+
+Both TGs use same settings:
+  Protocol    : HTTP      ← TG to EC2 is HTTP
+  Port        : 8080      ← your app port
+  Target type : instance  ← EC2 instances
+  Health check: /health   ← health endpoint
+
+SSL terminates at ALB ✅
+TG → EC2 uses plain HTTP internally ✅
+No SSL cert needed on EC2 ✅
+-----------------
+Normal    → 1 Target Group ✅
+Blue/Green→ 2 Target Groups ✅
+            1 for Blue (old)
+            1 for Green (new)
+
+Extra TG is BECAUSE of
+Blue/Green pattern ✅
+------------------------
+how we attach ALB target froup to ASG?
+
+After ASG Created — Attach TG
+
+EC2 Console
+→ Auto Scaling Groups
+→ Select your ASG
+→ Details tab
+→ Load balancing section
+→ Edit
+
+  Load balancer target groups:
+  → Add: Blue-TG  ← for Blue ASG ✅
+  → Add: Green-TG ← for Green ASG ✅
+
+→ Update ✅
