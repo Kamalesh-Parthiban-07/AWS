@@ -1,0 +1,231 @@
+FIRST — WHAT IS NLB
+──────────────────────────────────────────────────────────
+
+NLB = Network Load Balancer
+ALB = Application Load Balancer
+
+NLB works at Layer 4 (TCP/UDP)
+ALB works at Layer 7 (HTTP/HTTPS)
+
+
+CAN NLB DO WEIGHTED TARGET GROUPS?
+──────────────────────────────────────────────────────────
+
+ALB → weighted TG   ✅ YES supported
+NLB → weighted TG   ❌ NO not supported
+
+
+WHY NLB CANNOT DO WEIGHTS
+──────────────────────────────────────────────────────────
+
+NLB works at TCP level
+it does not understand HTTP
+it has no concept of:
+  → weighted routing
+  → path based routing
+  → header based routing
+  → host based routing
+
+NLB just forwards TCP packets
+no intelligence ❌
+
+
+COMPARISON
+──────────────────────────────────────────────────────────
+
+Feature               ALB             NLB
+────────────────────────────────────────────────────────
+Layer                 7 (HTTP)        4 (TCP/UDP)
+weighted TG           ✅ yes          ❌ no
+Blue/Green            ✅ yes          ❌ no
+Canary                ✅ yes          ❌ no
+path routing          ✅ yes          ❌ no
+host routing          ✅ yes          ❌ no
+header routing        ✅ yes          ❌ no
+performance           good            ultra high ✅
+latency               milliseconds    microseconds ✅
+static IP             ❌ no          ✅ yes
+SSL termination       ✅ yes          ✅ yes
+websockets            ✅ yes          ✅ yes
+TCP/UDP apps          ❌ no          ✅ yes
+HTTP apps             ✅ yes          ❌ not ideal
+price                 higher          lower
+
+
+WHEN TO USE NLB
+──────────────────────────────────────────────────────────
+
+NLB is used for:
+  → gaming servers (UDP)
+  → IoT applications
+  → real time streaming
+  → apps needing static IP
+  → extreme low latency
+  → non HTTP traffic
+  → TCP based apps
+
+NLB is NOT used for:
+  → Blue/Green ❌
+  → Canary ❌
+  → weighted routing ❌
+  → HTTP routing rules ❌
+
+
+SO FOR BLUE/GREEN AND CANARY
+──────────────────────────────────────────────────────────
+
+always use ALB ✅
+never NLB ❌
+
+
+WORKAROUND WITH NLB (complex)
+──────────────────────────────────────────────────────────
+
+if you MUST use NLB and need Blue/Green:
+
+  use Route53 weighted routing
+  instead of NLB weights
+
+  Route53
+    → record A weight 100 → NLB-Blue → EC2 old
+    → record B weight 0   → NLB-Green → EC2 new
+
+  switch at DNS level
+  not at load balancer level
+  but DNS has TTL delay ⚠️
+  not instant like ALB ⚠️
+
+
+INTERVIEW ONE-LINER
+──────────────────────────────────────────────────────────
+
+"NLB does not support weighted target groups
+ because it operates at Layer 4 TCP level
+ and has no HTTP routing intelligence.
+ Blue/Green and Canary require weighted
+ target groups so we must use ALB.
+ If NLB is required for performance reasons
+ we can achieve Blue/Green at DNS level
+ using Route53 weighted routing but it
+ has TTL delay unlike instant ALB switching." ✅
+
+-------------------------------------------------
+
+Target Group NLB vs ALB
+
+----------------------------
+
+YES NLB HAS TARGET GROUPS
+──────────────────────────────────────────────────────────
+
+NLB → TG → EC2s   ✅ yes it has TG
+
+but NLB TG is different from ALB TG
+
+
+WHAT NLB TG CAN DO
+──────────────────────────────────────────────────────────
+
+NLB TG supports:
+  → register EC2 instances    ✅
+  → register IP addresses     ✅
+  → register Lambda           ❌ no (ALB only)
+  → health checks             ✅
+  → TCP traffic forward       ✅
+
+
+WHAT NLB TG CANNOT DO
+──────────────────────────────────────────────────────────
+
+NLB TG does NOT support:
+  → weighted routing          ❌
+  → multiple TG with weights  ❌
+  → forward to 2 TGs          ❌
+  → path based rules          ❌
+  → host based rules          ❌
+
+
+THE KEY DIFFERENCE
+──────────────────────────────────────────────────────────
+
+ALB LISTENER RULE:
+  forward action → multiple TGs with weight ✅
+
+  TG-Blue  weight = 80
+  TG-Green weight = 20
+
+NLB LISTENER RULE:
+  forward action → only ONE TG ❌
+
+  TG → EC2s
+  no weight
+  no multiple TGs
+  just forward everything
+
+
+VISUAL DIFFERENCE
+──────────────────────────────────────────────────────────
+
+ALB:
+  Internet
+    ↓
+  ALB
+    ↓
+  Listener (port 80)
+    ↓
+  Rule → forward
+    ├── TG-Blue  (weight 80)  ✅
+    └── TG-Green (weight 20)  ✅
+
+NLB:
+  Internet
+    ↓
+  NLB
+    ↓
+  Listener (port 80)
+    ↓
+  forward → ONE TG only ❌
+              ↓
+            EC2s
+
+
+WHY NLB CANNOT DO MULTIPLE TG
+──────────────────────────────────────────────────────────
+
+NLB has no rule engine
+NLB just forwards TCP packets
+it does not inspect traffic
+so it cannot make routing decisions
+like "send 20% here and 80% there"
+
+ALB reads HTTP headers
+ALB understands requests
+ALB can make smart routing decisions
+
+
+SUMMARY
+──────────────────────────────────────────────────────────
+
+                    ALB TG          NLB TG
+────────────────────────────────────────────────────────
+has target group    ✅ yes          ✅ yes
+multiple TGs        ✅ yes          ❌ no
+weighted routing    ✅ yes          ❌ no
+Blue/Green          ✅ yes          ❌ no
+Canary              ✅ yes          ❌ no
+registers EC2       ✅ yes          ✅ yes
+health checks       ✅ yes          ✅ yes
+protocol            HTTP/HTTPS      TCP/UDP/TLS
+
+
+INTERVIEW ONE-LINER
+──────────────────────────────────────────────────────────
+
+"NLB does have target groups but its listener
+ can only forward to ONE target group.
+ ALB listener supports multiple target groups
+ with weights which is what enables Blue/Green
+ and Canary.
+ NLB has no rule engine to make routing
+ decisions — it just forwards TCP packets
+ to a single target group." ✅
