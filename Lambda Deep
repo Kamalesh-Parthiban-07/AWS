@@ -1,0 +1,64 @@
+Lambda is one of the best tools for AWS automation.
+
+Think of AWS Lambda as event-driven automation + short-running compute.
+
+Instead of:
+  Going to AWS Console manually ❌
+  Clicking buttons every time ❌
+  Doing same tasks repeatedly ❌
+
+Lambda automates:
+  Detects event → runs automatically ✅
+  No human needed ✅
+  Runs 24/7 ✅
+
+Lambda + boto3 + CloudWatch cron
+= Powerful AWS automation engine
+
+You can automate:
+  ✅ Cost saving     (stop unused resources)
+  ✅ Security        (find misconfigurations)
+  ✅ Backup          (snapshots, exports)
+  ✅ Monitoring      (health checks, alerts)
+  ✅ Compliance      (audit and fix)
+  ✅ Remediation     (auto fix issues)
+
+All without:
+  ❌ Managing servers
+  ❌ Manual work
+  ❌ Human intervention
+  ❌ Paying for idle compute
+
+Lambda + boto3 = the most powerful AWS automation combination for DevOps! 🎯
+---------
+
+🚀 1. Automation (most common)
+
+Trigger → do task → finish
+
+Stop unused EC2 at night
+Start instances in morning
+Clean old snapshots / logs
+Rotate keys / passwords
+
+👉 Trigger via Amazon EventBridge (cron)
+
+
+
+📁 7. File Processing
+Upload file → process automatically
+Resize images
+Convert formats
+
+👉 Trigger from Amazon S3
+
+
+❌ When NOT to use Lambda
+Long-running jobs (>15 min)
+Heavy compute (ML training, big batch jobs)
+Stateful apps
+
+👉 Use:
+
+Amazon EC2
+AWS Fargate
