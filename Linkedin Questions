@@ -96,3 +96,72 @@ Savings:
 
 AWS Instance Scheduler
 or Lambda + CloudWatch Events ✅
+
+-----------------------------------
+Have you ever deployed a Docker container on AWS Lambda?If yes briefly explain?
+
+Yes! Docker Container on AWS Lambda
+
+Yes, I have deployed Docker containers on AWS Lambda. Instead of uploading a ZIP file, I built a Docker image using the AWS Lambda base image, pushed it to ECR, and created a Lambda function pointing to that ECR image. This approach is useful when your dependencies exceed Lambda's 250 MB ZIP limit or when you need a custom runtime. The handler function remains the same — Lambda just runs it inside the container instead of a ZIP package.
+
+What It Means
+
+Normal Lambda:
+  upload ZIP file
+  max 250 MB ❌
+  limited dependencies
+
+Container Lambda:
+  upload Docker image to ECR
+  max 10 GB ✅
+  any dependencies
+  any runtime ✅
+----
+
+How It Works
+
+Write Dockerfile
+        ↓
+Build Docker image
+        ↓
+Push to ECR
+        ↓
+Create Lambda function
+  → select Container image
+  → point to ECR image
+        ↓
+Lambda runs your container ✅
+
+-----
+
+Lambda Console
+→ Create function
+→ Container image  ← select this
+→ Browse ECR images
+→ Select your image ✅
+→ Create function ✅
+---
+
+Container Lambda vs ZIP Lambda
+
+ZIP Lambda:
+  ✅ simple
+  ✅ fast deploy
+  ❌ max 250 MB
+  ❌ limited runtimes
+
+Container Lambda:
+  ✅ max 10 GB
+  ✅ any runtime
+  ✅ any dependencies
+  ✅ reuse existing Docker
+  ⚠️ slower cold start
+  ⚠️ needs ECR
+
+Limits
+
+Container Lambda limits:
+  Image size    : max 10 GB ✅
+  Memory        : 128 MB - 10 GB
+  Timeout       : 15 minutes max
+  Concurrency   : 1000 default
