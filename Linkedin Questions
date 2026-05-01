@@ -165,3 +165,48 @@ Container Lambda limits:
   Memory        : 128 MB - 10 GB
   Timeout       : 15 minutes max
   Concurrency   : 1000 default
+
+-----------------------------------------
+
+Explain horizontal vs vertical scaling in real infra scenarios?
+
+"In our production setup we use both. For web and application tier we use horizontal scaling — ASG automatically adds EC2 instances and HPA adds Kubernetes pods based on CPU metrics, with ALB distributing traffic. This gives us zero downtime and handles traffic spikes efficiently. For our database tier we start with vertical scaling — upgrading RDS instance class — because it's simpler and maintains data consistency. When reads become a bottleneck we add RDS Read Replicas for horizontal read scaling."
+
+"Blue-Green is the ideal approach for zero downtime vertical scaling and AWS RDS supports it natively. However in practice teams skip it for smaller systems because it doubles the database cost during switchover.
+
+
+ vertical scaling options for instance:
+
+Option 1: Maintenance window
+  Upgrade at 3 AM ✅
+  Accept downtime ✅
+  Simple and cheap ✅
+
+Option 2: Blue-Green deployment
+  Zero downtime ✅
+  Costs double temporarily ❌
+  Best for 24/7 apps ✅
+
+Option 3: Multi-AZ failover
+  Upgrade standby first
+  Failover to standby
+  ~60 seconds downtime ✅
+  Better than cold upgrade ✅
+
+------------
+
+RDS Instance scaling — has downtime ❌:
+
+RDS CPU/RAM not enough
+    ↓
+You manually change instance class:
+db.t3.medium → db.t3.large
+    ↓
+Database RESTARTS ❌
+5-10 mins downtime ❌
+Not automatic ❌
+--
+Storage (disk space) → auto scales ✅ zero downtime
+Instance (CPU/RAM)   → manual      ❌ has downtime
+--
+
