@@ -111,6 +111,9 @@ Example:
 
 https://www.youtube.com/watch?v=YIUXQpSgNQ8
 
+SNS Fan Out = 1 message → Any type of subscriber
+Not just SQS — Email, SMS, Lambda, HTTP all supported! 🚀
+
 One message → many queues
 -----------------------------------------
 Real world example — Order placed:
