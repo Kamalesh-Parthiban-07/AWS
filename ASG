@@ -1,5 +1,36 @@
 ASG (Auto Scaling Group) automatically increases EC2 instances when traffic is high and decreases when traffic is low, based on rules you define like CPU usage or request count.
 
+Yes! ASG is Used for High Availability 👇
+------------------------------
+How ASG Provides High Availability
+------------------------
+ASG
+ │
+ ├── Min instances  → Always keep minimum running
+ ├── Max instances  → Never exceed this limit
+ └── Desired        → Try to maintain this count
+
+If instance fails → ASG automatically
+                    launches new one ✅
+-----------------------------------------------------
+ASG + Multi AZ = High Availability
+----------------------------------
+Region: ap-south-1 (Mumbai)
+         │
+         ├── AZ 1 (ap-south-1a) → EC2 Instance 1 ✅
+         ├── AZ 2 (ap-south-1b) → EC2 Instance 2 ✅
+         └── AZ 3 (ap-south-1c) → EC2 Instance 3 ✅
+
+If AZ 1 goes down →
+ASG launches new instance in AZ 2 or AZ 3 ✅
+Application stays up = High Availability ✅
+----------------------------------------------------------
+✅ Simple Rule
+
+ASG alone → Auto scaling + Auto healing
+ASG + ELB → High Availability
+ASG + ELB + Multi AZ → Production grade HA 🚀
+------------------------------------------------------
 Pre-request
 
 Launch Template
