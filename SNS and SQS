@@ -153,7 +153,7 @@ Real world — when to use what:
 +-------------------+-----------+----------------------------------+
 
 SNS is push based — it broadcasts to all subscribers instantly but if a subscriber is down SNS retries limited times and then the message is lost forever.
-SQS is added between SNS and the consumer to store messages safely — SQS retries unlimited times and even if all retries fail the message goes to DLQ and is never lost.
+SQS(Simple Queue Service) is added between SNS and the consumer to store messages safely — SQS retries unlimited times and even if all retries fail the message goes to DLQ and is never lost.
 
 SNS can send directly to any subscriber like Email, SMS, Lambda without SQS.
 SQS is only added when your own service like EC2 or EKS can go down — SQS stores messages safely until the service comes back up.
