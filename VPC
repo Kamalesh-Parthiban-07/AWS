@@ -435,3 +435,134 @@ Data center 2       → VPN Connection 5 ──┘
 All 5 VPN connections active ✅
 All 10 tunnels active with ECMP ✅
 Total = 12.5 Gbps ✅
+
+----------------------------------
+
+Option 1: VPC Peering
+
+Step 1: Create VPC Peering Connection
+
+VPC Console
+→ Peering Connections
+→ Create Peering Connection
+
+  Name                : vpc-a-to-vpc-b
+  VPC ID (Requester)  : vpc-aaaa (VPC A)
+  VPC ID (Accepter)   : vpc-bbbb (VPC B)
+    ○ My Account       ← same account
+    ○ Another Account  ← different account
+
+→ Create Peering Connection ✅
+
+Update Route Tables (BOTH VPCs)
+
+VPC A Route Table:
+→ VPC Console
+→ Route Tables
+→ Select VPC A route table
+→ Routes tab → Edit routes
+→ Add route:
+  Destination : 10.1.0.0/16  ← VPC B CIDR
+  Target      : pcx-xxxxxxxx ← peering connection
+→ Save ✅
+
+VPC B Route Table:
+→ Select VPC B route table
+→ Routes tab → Edit routes
+→ Add route:
+  Destination : 10.0.0.0/16  ← VPC A CIDR
+  Target      : pcx-xxxxxxxx ← same peering connection
+→ Save ✅
+
+VPC Peering — Important Rules
+
+✅ works for 2 VPCs
+✅ same region or cross region
+✅ same account or different account
+❌ NO transitive routing
+   VPC A ↔ VPC B ↔ VPC C
+   VPC A cannot talk to VPC C
+   through VPC B ❌
+   need direct peering ❌
+
+CIDR blocks must NOT overlap:
+  VPC A: 10.0.0.0/16 ✅
+  VPC B: 10.1.0.0/16 ✅
+  VPC B: 10.0.0.0/16 ❌ overlaps!
+
+----------------------------
+Option 2: Transit Gateway
+
+Step 1: Create Transit Gateway
+
+VPC Console
+→ Transit Gateways
+→ Create Transit Gateway
+
+  Name        : my-tgw
+  Description : connects all VPCs
+  ASN         : 64512 (default) ✅
+
+  Options:
+    ✅ DNS support
+    ✅ VPN ECMP support
+    ✅ Default route table association
+    ✅ Default route table propagation
+
+→ Create Transit Gateway ✅
+⏳ wait 5 mins
+
+Step 2: Create TGW Attachments (one per VPC)
+
+VPC Console
+→ Transit Gateway Attachments
+→ Create Transit Gateway Attachment
+
+Attachment 1 (VPC A):
+  Transit Gateway ID : tgw-xxxxxxxx
+  Attachment type    : VPC
+  VPC ID             : vpc-aaaa (VPC A)
+  Subnets            : select subnet in each AZ
+→ Create ✅
+
+Attachment 2 (VPC B):
+  Transit Gateway ID : tgw-xxxxxxxx
+  Attachment type    : VPC
+  VPC ID             : vpc-bbbb (VPC B)
+  Subnets            : select subnet in each AZ
+→ Create ✅
+
+Attachment 3 (VPC C):
+  Transit Gateway ID : tgw-xxxxxxxx
+  Attachment type    : VPC
+  VPC ID             : vpc-cccc (VPC C)
+  Subnets            : select subnet
+→ Create ✅
+
+⏳ wait for state: available
+
+Step 3: Update Route Tables (all VPCs)
+
+VPC A Route Table:
+→ Add routes:
+  Destination : 10.1.0.0/16 ← VPC B CIDR
+  Target      : tgw-xxxxxxxx ✅
+
+  Destination : 10.2.0.0/16 ← VPC C CIDR
+  Target      : tgw-xxxxxxxx ✅
+
+VPC B Route Table:
+→ Add routes:
+  Destination : 10.0.0.0/16 ← VPC A CIDR
+  Target      : tgw-xxxxxxxx ✅
+
+  Destination : 10.2.0.0/16 ← VPC C CIDR
+  Target      : tgw-xxxxxxxx ✅
+
+VPC C Route Table:
+→ Add routes:
+  Destination : 10.0.0.0/16 ← VPC A CIDR
+  Target      : tgw-xxxxxxxx ✅
+
+  Destination : 10.1.0.0/16 ← VPC B CIDR
+  Target      : tgw-xxxxxxxx ✅
