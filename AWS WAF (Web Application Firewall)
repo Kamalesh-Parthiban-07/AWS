@@ -1,0 +1,75 @@
+AWS WAF is a web application firewall that protects your web applications from common web exploits and attacks like SQL injection, XSS, and DDoS.
+
+🔵 How WAF Works
+
+User Request
+     │
+     ▼
+AWS WAF
+     │
+     ├── Check rules
+     │
+     ├── Malicious request → BLOCK ❌
+     └── Normal request    → ALLOW ✅
+     │
+     ▼
+Your Application
+(Safe!) ✅
+
+🔵 What WAF Protects Against
+
+SQL Injection        → Block DB attacks ✅
+XSS                  → Block script injection ✅
+DDoS                 → Block flood attacks ✅
+Bad Bots             → Block scrapers ✅
+IP Blacklisting      → Block specific IPs ✅
+Geo Blocking         → Block specific countries ✅
+Rate Limiting        → Block too many requests ✅
+
+🔵 WAF in EKS / DevOps
+
+User Request
+     │
+     ▼
+Route53 (DNS)
+     │
+     ▼
+CloudFront + WAF   ← WAF sits here ✅
+     │
+     ▼
+ALB + WAF          ← Or here ✅
+     │
+     ▼
+EKS Ingress
+     │
+     ▼
+Your Application ✅
+
+WAF vs Security Groups vs NACLs
+---------------------------------------------------------------------------------------
+Category     | WAF (Web Application Firewall) | Security Group        | NACL (Network ACL)
+----------------------------------------------------------------------------------------------
+Layer        | Application (L7)               | Instance (L4)         | Subnet (L4)
+Checks       | HTTP content                  | IP and Port           | IP and Port
+Blocks       | SQL, XSS, Bots               | Ports, IPs            | Ports, IPs
+Level        | App level                    | EC2 level             | Subnet level-
+
+---------------------------------------------------------------
+Simple Rule
+
+- WAF = Layer 7 protection for web apps
+- Always attach WAF to CloudFront or ALB
+- Use AWS Managed Rules as starting point
+- Add custom rules for your specific needs
+- WAF + Shield = Complete DDoS protection 🚀
+
+-------------------------------------------
+Types of Rules in WAF
+
+Rule Type            | What it Does
+---------------------|-------------------------------
+IP Set Rules         | Block/Allow specific IPs
+Geo Match Rules      | Block specific countries
+Rate Based Rules     | Block if too many requests
+Managed Rules        | AWS pre-built rule groups
+Custom Rules         | Your own rules
