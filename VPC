@@ -374,3 +374,32 @@ VPN Connection 2:
   Tunnel 4 → standby ❌   ← wasted
 
 Only 2 tunnels used out of 4 ❌
+
+----------------------------------------------
+There is no fixed limit — you can attach as many VPN connections as you need!
+
+AWS TGW VPN limits:
+
+Per Transit Gateway:
+  Max VPN connections: 5000 ✅
+  Each VPN has 2 tunnels
+  5000 VPNs × 2 tunnels = 10,000 tunnels
+
+But practical limit:
+  TGW max bandwidth: 50 Gbps
+  Each tunnel: 1.25 Gbps
+  50 Gbps ÷ 1.25 = 40 tunnels max useful
+  = 20 VPN connections practical limit
+--------------------------------------------
+
+Real world setup:
+
+On-premise office 1 → VPN Connection 1 ──┐
+On-premise office 2 → VPN Connection 2 ──┤
+On-premise office 3 → VPN Connection 3 ──┼── TGW
+Data center 1       → VPN Connection 4 ──┤
+Data center 2       → VPN Connection 5 ──┘
+
+All 5 VPN connections active ✅
+All 10 tunnels active with ECMP ✅
+Total = 12.5 Gbps ✅
