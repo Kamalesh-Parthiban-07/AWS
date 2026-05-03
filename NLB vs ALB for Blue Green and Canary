@@ -29,6 +29,20 @@ it has no concept of:
 NLB just forwards TCP packets
 no intelligence ❌
 
+Path routing:
+  myapp.com/api/*    → api service
+  myapp.com/auth/*   → auth service
+  URL path decides ✅
+
+Host routing:
+  api.myapp.com      → api service
+  auth.myapp.com     → auth service
+  domain decides ✅
+
+Header routing:
+  X-Version: v1      → v1 service
+  X-Version: v2      → v2 service
+  HTTP header decides ✅
 
 COMPARISON
 ──────────────────────────────────────────────────────────
