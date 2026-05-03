@@ -1,5 +1,6 @@
 What is CloudFront in AWS?
 
+Yes — Amazon CloudFront operates at Layer 7 (Application Layer).
 Amazon CloudFront is a CDN (Content Delivery Network) service that delivers content to users faster by caching it at edge locations closer to them.
 
 In EKS?
