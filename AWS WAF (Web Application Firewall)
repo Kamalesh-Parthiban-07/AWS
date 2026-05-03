@@ -25,6 +25,64 @@ Bad Bots             → Block scrapers ✅
 IP Blacklisting      → Block specific IPs ✅
 Geo Blocking         → Block specific countries ✅
 Rate Limiting        → Block too many requests ✅
+----------------------------------------------------
+"SQL Injection is when an attacker inserts malicious SQL code into input fields to manipulate the database — for example entering admin'-- to bypass login or DROP 
+TABLE to delete data. AWS WAF blocks this using the managed AWSManagedRulesSQLiRuleSet rule which inspects all incoming requests including URL parameters, 
+request body, headers and cookies for known SQL injection patterns. When detected the request is blocked with a 403 before it ever reaches the application or 
+database. In our setup WAF sits at CloudFront so attacks are blocked at the edge."
+-----------------------
+SQL Injection attack:
+----------------------------
+Attacker enters:
+  Username: admin'--
+  Password: anything
+
+SQL query becomes:
+  SELECT * FROM users
+  WHERE username='admin'--'
+  AND password='anything'
+        ↓
+-- means comment in SQL
+Everything after -- ignored ❌
+        ↓
+Query becomes:
+  SELECT * FROM users
+  WHERE username='admin'
+        ↓
+Login without password ❌
+Full admin access ❌
+------------------------------
+More dangerous example:
+---------------------------
+Attacker enters:
+  '; DROP TABLE users;--
+
+SQL becomes:
+  SELECT * FROM users
+  WHERE id='';
+  DROP TABLE users;--'
+        ↓
+Entire users table DELETED ❌
+All user data gone ❌
+-------------------------------
+How AWS WAF blocks SQL Injection:
+
+Request comes in:
+  URL: myapp.com/login
+  Body: username=admin'--
+
+        ↓
+AWS WAF inspects request
+        ↓
+WAF Rule: AWSManagedRulesSQLiRuleSet
+        ↓
+Detects SQL injection pattern ❌
+        ↓
+Request BLOCKED ✅
+Returns 403 Forbidden ✅
+Never reaches your app ✅
+Never reaches database ✅
+----------------------------------
 
 🔵 WAF in EKS / DevOps
 
