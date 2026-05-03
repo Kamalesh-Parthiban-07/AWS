@@ -82,6 +82,7 @@ The subnet uses the main route table by default.
 
 A route table is a set of rules that controls how traffic is routed within a VPC
 
+one end we attach to Internet Gateway or NAT Gateway and another end we attach to public or private subnet
 
 
 key point 
