@@ -344,3 +344,33 @@ With ECMP:
   VPN Tunnel 4 → active (1.25 Gbps) ✅
   Total = 5 Gbps ✅
   All tunnels used simultaneously ✅
+-----------------------------------------------
+if we enable on transit g/w how many vpn will active?
+
+All VPN tunnels will be active simultaneously!
+
+Each VPN connection has 2 tunnels:
+
+VPN Connection 1:
+  Tunnel 1 → active ✅
+  Tunnel 2 → active ✅
+
+VPN Connection 2:
+  Tunnel 3 → active ✅
+  Tunnel 4 → active ✅
+
+VPN Connection 3:
+  Tunnel 5 → active ✅
+  Tunnel 6 → active ✅
+
+Without ECMP:
+
+VPN Connection 1:
+  Tunnel 1 → active ✅
+  Tunnel 2 → standby ❌   ← wasted
+
+VPN Connection 2:
+  Tunnel 3 → active ✅
+  Tunnel 4 → standby ❌   ← wasted
+
+Only 2 tunnels used out of 4 ❌
