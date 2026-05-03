@@ -261,7 +261,38 @@ SSH	22	1024–65535
 ✔️ Just slightly over-permissive, but not wrong
 
 Allowing outbound ports 80, 443, or 22 does not break anything, but it is not required for return traffic. The critical rule is allowing ephemeral ports (1024–65535). Without that, the connection will fail.
+--------------------
+Inbound rules:
 
+Rule 100: ALLOW  0.0.0.0/0   TCP  port 80    ← HTTP  ✅
+Rule 110: ALLOW  0.0.0.0/0   TCP  port 443   ← HTTPS ✅
+Rule 120: ALLOW  0.0.0.0/0   TCP  port 1024-65535  ← ephemeral ports ✅
+Rule *  : DENY   0.0.0.0/0   ALL             ← deny rest ✅
+
+Outbound rules:
+
+Rule 100: ALLOW  0.0.0.0/0   TCP  port 80    ← HTTP  ✅
+Rule 110: ALLOW  0.0.0.0/0   TCP  port 443   ← HTTPS ✅
+Rule 120: ALLOW  0.0.0.0/0   TCP  port 1024-65535  ← ephemeral ports ✅
+Rule *  : DENY   0.0.0.0/0   ALL             ← deny rest ✅
+
+Why ephemeral ports needed:
+
+Client sends request:
+  Source port: 52000 (random ephemeral)
+  Dest port:   80 (HTTP)
+        ↓
+Server responds:
+  Source port: 80
+  Dest port:   52000 (back to client)
+
+NACL is stateless:
+  Does not remember the connection ❌
+  Must explicitly allow
+  ephemeral ports 1024-65535 ✅
+  Otherwise response blocked ❌
+
+--------------------------
 
 Option 1: VPC Peering (3 VPCs)
 
