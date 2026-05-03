@@ -298,3 +298,49 @@ Cost               | cheap                   | slightly more
 Management         | complex at scale        | simple ✔
 Cross region       | ✔ Yes                   | ✔ Yes
 Cross account      | ✔ Yes                   | ✔ Yes
+
+-------------------------------------------------------------------------
+ECPM - Equal-Cost Multi-Path
+-------
+Transit Gateway is a centralized hub connecting multiple VPCs and on-prem networks. ECMP distributes traffic across multiple equal-cost VPN tunnels simultaneously for higher throughput — each tunnel gives 1.25 Gbps so 4 tunnels give 5 Gbps total. ECMP requires BGP dynamic routing and must be enabled on Transit Gateway
+
+No! VPN is not used for single VPC — it's used to connect outside networks to AWS.
+-------------------
+VPN use cases:
+------------------
+VPN is used to connect:
+
+On-premise office → AWS VPC ✅
+Your laptop (remote work) → AWS VPC ✅
+Another cloud (Azure/GCP) → AWS VPC ✅
+Data center → AWS VPC ✅
+
+NOT used:
+Within single VPC ❌
+Between subnets in same VPC ❌
+
+When you need VPN:
+
++-----------------------------+------------------------------+
+| Scenario                    | Solution                     |
++-----------------------------+------------------------------+
+| Office → AWS                | Site-to-Site VPN             |
+| Remote developer → AWS      | Client VPN                   |
+| Multiple VPCs               | Transit Gateway (not VPN)    |
+| On-prem → multiple VPCs     | TGW + VPN                    |
++-----------------------------+------------------------------+
+
+ECMP:
+
+Without ECMP:
+  VPN Tunnel 1 → active (1.25 Gbps)
+  VPN Tunnel 2 → standby ❌
+  Only one tunnel used ❌
+
+With ECMP:
+  VPN Tunnel 1 → active (1.25 Gbps) ✅
+  VPN Tunnel 2 → active (1.25 Gbps) ✅
+  VPN Tunnel 3 → active (1.25 Gbps) ✅
+  VPN Tunnel 4 → active (1.25 Gbps) ✅
+  Total = 5 Gbps ✅
+  All tunnels used simultaneously ✅
