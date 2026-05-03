@@ -109,6 +109,25 @@ INTERVIEW ONE-LINER
  using Route53 weighted routing but it
  has TTL delay unlike instant ALB switching." ✅
 
+TTL = Time To Live
+    = how long DNS answer
+      is cached/remembered
+
+How to Reduce TTL Delay
+
+Before Blue/Green switch:
+  lower TTL to 60 seconds
+  wait for old TTL to expire
+        ↓
+Switch Route 53 to Green
+        ↓
+Max 60 seconds delay ✅
+        ↓
+After switch:
+  raise TTL back to 300 ✅
+
+Yes! Same TTL delay applies for Route 53 with NLB too:
+
 -------------------------------------------------
 
 Target Group NLB vs ALB
