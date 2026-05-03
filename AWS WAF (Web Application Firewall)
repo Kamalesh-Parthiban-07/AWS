@@ -1,5 +1,8 @@
 AWS WAF is a web application firewall that protects your web applications from common web exploits and attacks like SQL injection, XSS, and DDoS.
 
+XSS protection means preventing Cross-Site Scripting (XSS) attacks
+XSS is when an attacker injects malicious JavaScript into a web application, which then runs in other users’ browsers.
+
 🔵 How WAF Works
 
 User Request
