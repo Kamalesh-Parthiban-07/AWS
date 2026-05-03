@@ -1,0 +1,82 @@
+🔵 What is KMS in 2 Lines
+AWS KMS is a managed service that allows you to create, manage and control encryption keys used to encrypt your data across AWS services.
+
+🔵 What KMS Does
+
+Create encryption keys      ✅
+Store keys securely         ✅
+Rotate keys automatically   ✅
+Control who uses keys       ✅
+Audit key usage             ✅
+Encrypt / Decrypt data      ✅
+
+🔵 How KMS Works
+
+Your Data
+    │
+    ▼
+KMS encrypts with CMK
+(Customer Master Key)
+    │
+    ▼
+Encrypted Data stored
+in S3 / EBS / RDS etc
+    │
+    ▼
+Only authorized users
+can decrypt using KMS ✅
+
+KMS Key Types
+
+Key Type                      | Who Manages        | Cost
+------------------------------------------------------------
+AWS Managed Key              | AWS manages        | Free
+Customer Managed Key (CMK)   | You manage         | Paid
+Custom Key Store             | You + CloudHSM     | Expensive
+
+
+🔵 KMS with AWS Services
+
+S3          → Encrypt objects using KMS ✅
+EBS         → Encrypt volumes using KMS ✅
+RDS         → Encrypt database using KMS ✅
+Secrets Mgr → Encrypt secrets using KMS ✅
+EKS         → Encrypt K8s secrets using KMS ✅
+Lambda      → Encrypt env variables using KMS ✅
+
+🔵 KMS in EKS — Very Common Use Case
+
+
+Kubernetes Secrets
+      │
+      ▼
+Stored in etcd
+      │
+      ▼
+KMS encrypts etcd data ✅
+      │
+      ▼
+Even if etcd is compromised
+Data is encrypted ✅
+
+
+💡 Real World Analogy
+
+Without KMS                  With KMS
+────────────────             ────────────────
+You manage your              AWS manages your
+own keys                     keys in a vault
+
+Like keeping house           Like storing house
+key under doormat ❌         key in bank locker ✅
+
+
+
+
+
+
+
+
+
+
+
