@@ -10,6 +10,46 @@ ASG
  ├── Max instances  → Never exceed this limit
  └── Desired        → Try to maintain this count
 
+"Yes — Desired changes automatically when a scaling policy is defined. Without a scaling policy Desired stays fixed at whatever you set. With a scaling policy like target tracking — AWS automatically increases Desired when CPU goes high and decreases it when CPU drops — always respecting Min and Max boundaries. You can also change Desired manually via CLI or console, or use scheduled scaling to change it at specific times like increasing capacity during business hours."
+
+Your ASG settings:
+
+Min     : 2
+Max     : 4
+Desired : 3
+
+CPU less than 30% — scale down:
+
+CPU < 30%
+        ↓
+Scaling policy triggers scale down
+        ↓
+Desired changes: 3 → 2
+        ↓
+ASG terminates 1 instance
+        ↓
+Now running 2 instances
+
+Can it go below 2? ❌
+Min = 2 → HARD LIMIT
+ASG will ALWAYS keep 2 running ✅
+Even if CPU = 0% ✅
+
+All scenarios:
+
++-------------+-------------+------------------------------+
+| CPU %       | Action      | Instances running            |
++-------------+-------------+------------------------------+
+| CPU > 70%   | Scale up    | 3 → 4 (max limit)            |
+| CPU normal  | No action   | stays at desired 3           |
+| CPU < 30%   | Scale down  | 3 → 2 (min limit)            |
+| CPU = 0%    | No action   | stays at 2 (min)             |
++-------------+-------------+------------------------------+
+
+
+-----------------------------------------------------------------------------------
+
+
 If instance fails → ASG automatically
                     launches new one ✅
 -----------------------------------------------------
