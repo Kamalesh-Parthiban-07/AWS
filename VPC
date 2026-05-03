@@ -1,5 +1,15 @@
 VPC
 
+Private IP address space
+
++----------------+-------------------+
+| From           | To                |
++----------------+-------------------+
+| 10.0.0.0       | 10.255.255.255    |
+| 172.16.0.0     | 172.31.255.255    |
+| 192.168.0.0    | 192.168.255.255   |
++----------------+-------------------+
+
 1. What is a VPC?
 
 A VPC (Virtual Private Cloud) is a logically isolated network where you can launch resources (like EC2 instances) with full control over IP addressing, routing, and security.
