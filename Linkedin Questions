@@ -44,6 +44,8 @@ Spot Instances:
     dev/test environments
   not for production ⚠️
 
+Spot Instance is an unused EC2 capacity that AWS sells at up to 90% discount — but AWS can terminate it anytime with a 2-minute warning when they need the capacity back.
+
 ---------
 Auto Scaling — Pay Only What You Need
 
