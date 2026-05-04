@@ -532,3 +532,19 @@ RDS MySQL
         ↓
 Response flows back
 to user ✅
+----------------------------
+What kind of autoscaling available in AWS?
+
+Comparison Table
+
+Service        | What Scales            | Use Case
+--------------------------------------------------------
+EC2 ASG        | EC2 instances          | web/app servers
+ECS            | Tasks/containers       | containerized apps
+EKS HPA        | Pods                   | kubernetes apps
+EKS VPA        | Pod resources          | kubernetes apps
+EKS CA         | Worker nodes           | kubernetes cluster
+DynamoDB       | Read/write capacity    | database
+Aurora         | Read replicas          | database reads
+Lambda         | Concurrent executions  | serverless
+Predictive     | EC2 instances          | known patterns
