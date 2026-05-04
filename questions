@@ -456,3 +456,79 @@ EC2 Console
   → Add: Green-TG ← for Green ASG ✅
 
 → Update ✅
+------------------------------
+
+Not able to access EC2 instans how will you approach a troubleshooting?
+
+Issue                    Fix
+─────                    ────
+Port 22 blocked SG    →  add inbound rule ✅
+Wrong key pair        →  use correct .pem ✅
+Wrong username        →  ec2-user/ubuntu ✅
+Key permissions       →  chmod 400 key.pem ✅
+No public IP          →  assign Elastic IP ✅
+No IGW                →  attach IGW ✅
+No route to IGW       →  add 0.0.0.0/0 route ✅
+NACL blocking         →  add allow rules ✅
+Instance stopped      →  start instance ✅
+Status check failed   →  stop/start EC2 ✅
+OS crashed            →  reboot or get logs ✅
+CPU 100%              →  reboot or resize ✅
+
+ssh -i my-key.pem ec2-user@54.123.45.67
+ ↑   ↑  ↑          ↑        ↑
+ |   |  |          |        public IP
+ |   |  |          username
+ |   |  pem file name
+ |   identity file flag
+ SSH command
+
+chmod 400 my-key.pem
+
+chmod 777 = everyone can read/write/execute
+          = too open ❌
+          = security risk
+
+SSH sees 777 permissions
+SSH says:
+  "this key is too open"
+  "anyone can read it"
+  "I refuse to use it" ❌
+
+ERROR:
+  WARNING: UNPROTECTED PRIVATE KEY FILE!
+  Permissions 0777 for 'my-key.pem' are too open
+  It is required that your private key files
+  are NOT accessible by others
+  This private key will be ignored ❌
+
+-------------------------------------------------------------------------
+What is three tair architecture
+
+Three tier = Web + App + DB — each in separate subnet with security groups allowing only necessary traffic between tiers! ✅
+
+Simple Summary
+
+"Three tier architecture separates the application into three layers — Presentation, Application, and Database. In AWS I implement this using public subnets for web servers behind an internet-facing ALB, private subnets for application servers behind an internal ALB, and another private subnet for RDS database. Each tier has its own security group — web tier accepts public traffic, app tier accepts only from web tier, and DB tier accepts only from app tier. This gives security, scalability, and high availability."
+
+User opens browser
+  → https://myapp.com
+        ↓
+Route 53 → ALB (public)
+        ↓
+Web Server (React)
+  → serves HTML/CSS/JS
+  → calls API
+        ↓
+Internal ALB
+        ↓
+App Server (Java/Python)
+  → processes business logic
+  → validates data
+  → queries database
+        ↓
+RDS MySQL
+  → stores/retrieves data
+        ↓
+Response flows back
+to user ✅
