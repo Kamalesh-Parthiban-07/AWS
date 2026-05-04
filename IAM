@@ -5,7 +5,21 @@ AWS IAM (Identity and Access Management) – Short Summary
 Users: Individual accounts with login or access keys
 Groups: Collections of users with shared permissions
 Roles: Temporary access identities for services or users
-Policies: JSON rules that define what actions are allowed or denied
+Policies: JSON rules that define what actions and Resource are allowed or denied
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:*",
+        "dynamodb:*"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
 
 👉 In short: IAM controls who can access what in AWS.
 -------------------------------------
