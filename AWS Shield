@@ -1,6 +1,8 @@
 🔵 What is Shield in 2 Lines
 AWS Shield is a managed DDoS protection service that protects your AWS applications from Distributed Denial of Service attacks.
 
+The most dangerous modern DDoS attacks happen at Layer 7 because they look like normal HTTP traffic, which is why Shield Advanced + WAF together is the production-grade combo.
+
 Think of it as a army protecting your building — WAF is the security guard at door, Shield is the army outside ✅
 
 WAF                          Shield
