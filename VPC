@@ -91,7 +91,7 @@ Without a route table, you cannot connect a subnet to an Internet Gateway (IGW).
 NAT Gateway must be placed in a public subnet
 Private subnet never directly connects to IGW  -- because then it will become public
 
-13. How would you design a highly available VPC architecture?
+13. How would you design a highly available VPC architecture? or  3-tier architectur?
 Use multiple Availability Zones
 Public + private subnets in each AZ 
 Load Balancer in public subnet
