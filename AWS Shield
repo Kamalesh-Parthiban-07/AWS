@@ -5,6 +5,19 @@ The most dangerous modern DDoS attacks happen at Layer 7 because they look like 
 
 So botnet solves three things for the attacker — enough speed, unblockable IPs, and staying anonymous. That is why no serious attacker uses their own laptop.
 
+FULL PICTURE
+─────────────────────────────────────
+Attack Type          What protects it
+───────────────────────────────────── 
+1000 bots → server   AWS Shield ✅
+HTTP flood → /login  AWS Shield + WAF ✅
+SQL injection        WAF ✅
+Phishing email       Your awareness ✅
+Click fake link      Google Safe Browsing ✅
+Give password away   2FA ✅
+
+ the 1000 bot DDoS attack on your server is exactly the use case AWS Shield was built for. The phishing email is a completely separate human problem.
+
 Think of it as a army protecting your building — WAF is the security guard at door, Shield is the army outside ✅
 
 WAF                          Shield
