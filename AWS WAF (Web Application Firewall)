@@ -134,3 +134,165 @@ Geo Match Rules      | Block specific countries
 Rate Based Rules     | Block if too many requests
 Managed Rules        | AWS pre-built rule groups
 Custom Rules         | Your own rules
+---------------------------------------------------
+
+================================================
+  AWS WAF — SETUP NOTES
+================================================
+
+[ WHAT WAF PROTECTS ]
+  SQL Injection        → attacker sends: ' OR 1=1--
+  XSS                  → attacker sends: <script>steal()</script>
+  HTTP Flood           → 1000 bots × 100 req/min
+  Bot traffic          → fake browser requests
+  Geo blocking         → block entire countries
+  Rate limiting        → block IPs sending too fast
+  Custom rules         → your own block/allow logic
+
+------------------------------------------------
+
+[ STEP 1 — Open WAF Console ]
+  AWS Console → search "WAF" → AWS WAF & Shield
+  
+  Make sure region is correct:
+    CloudFront  → must use us-east-1 (global)
+    ALB/NLB     → use your resource region (us-east-2)
+
+------------------------------------------------
+
+[ STEP 2 — Create Web ACL ]
+  WAF Console → Web ACLs → Create Web ACL
+
+  Fill in:
+    Name:         my-waf-web-acl
+    Description:  WAF for production app
+    Region:       your region (or CloudFront global)
+    
+  Associated resources:
+    → Add your ALB / CloudFront / API Gateway here
+    → Can also add later
+
+------------------------------------------------
+
+[ STEP 3 — Add Rule Groups ]
+  This is the most important step.
+  Rules = what WAF actually blocks.
+
+  Option A — AWS Managed Rules (recommended, free)
+  ──────────────────────────────────────────────────
+  Click: Add rules → Add managed rule groups
+  
+  Enable these:
+    ✅ AWSManagedRulesCommonRuleSet
+       Blocks: SQLi, XSS, bad requests
+       
+    ✅ AWSManagedRulesKnownBadInputsRuleSet  
+       Blocks: Log4j, malformed requests
+       
+    ✅ AWSManagedRulesSQLiRuleSet
+       Blocks: SQL injection specifically
+       
+    ✅ AWSManagedRulesAmazonIpReputationList
+       Blocks: Known bad IPs, bots, scrapers
+       
+    ✅ AWSManagedRulesBotControlRuleSet
+       Blocks: Automated bot traffic
+       NOTE: Extra cost — $10/month + $1/million req
+
+  Option B — Custom Rules (your own logic)
+  ──────────────────────────────────────────
+  Click: Add rules → Add my own rules
+
+  Example 1 — Rate limit per IP:
+    Rule name:   RateLimitLogin
+    Type:        Rate based rule
+    Rate limit:  2000 requests per 5 minutes
+    Scope:       URI path starts with /login
+    Action:      Block ✅
+
+  Example 2 — Geo block:
+    Rule name:   BlockCountries
+    Type:        Regular rule
+    Condition:   Country is NOT IN [IN, US, GB]
+    Action:      Block ✅
+
+  Example 3 — Block bad User-Agent:
+    Rule name:   BlockBadBots
+    Type:        Regular rule
+    Condition:   User-Agent contains "sqlmap"
+    Action:      Block ✅
+
+------------------------------------------------
+
+[ STEP 4 — Set Default Action ]
+  At bottom of Web ACL creation:
+  
+  Default action:
+    Allow  → allow all traffic not matched by rules ✅
+    Block  → block all traffic not matched by rules
+    
+  Choose: ALLOW (most common)
+  WAF only blocks what matches your rules
+
+------------------------------------------------
+
+[ STEP 5 — Review and Create ]
+  Review all rules → Create Web ACL
+  Takes 1-2 minutes to deploy
+
+------------------------------------------------
+
+[ STEP 6 — Associate with Resource ]
+  If not done in Step 2:
+  
+  WAF Console → Web ACLs → select your ACL
+  → Associated AWS resources → Add
+  → Select your ALB / CloudFront / API Gateway
+
+  For Shield Advanced:
+  Shield Console → Protected Resources
+  → Select resource → Associate WAF Web ACL
+
+------------------------------------------------
+
+[ STEP 7 — Enable Logging ]
+  WAF Console → Web ACLs → select ACL
+  → Logging and metrics → Enable logging
+  
+  Send logs to:
+    → S3 bucket (cheapest)
+    → CloudWatch Logs (real time)
+    → Kinesis Firehose (analytics)
+
+  Logs show:
+    Which rule blocked the request
+    Source IP
+    URI path
+    Timestamp
+
+------------------------------------------------
+
+[ IMPORTANT — WAF COSTS ]
+  Web ACL:          $5/month per ACL
+  Rule group:       $1/month per rule
+  Requests:         $0.60 per 1 million requests
+  Bot Control:      $10/month + $1/million req
+  
+  Managed rules:    FREE (no extra cost)
+  Custom rules:     $1/month each
+
+------------------------------------------------
+
+[ WAF vs SHIELD — REMEMBER ]
+  WAF alone     → blocks SQLi, XSS, bad bots ✅
+                  rate limits per IP ✅
+                  NOT enough for large DDoS ❌
+
+  Shield Std    → L3 & L4 DDoS, free, auto ✅
+  Shield Adv    → L3, L4 & L7 DDoS + WAF ✅
+
+  WAF + Shield  → complete production security ✅
+
+================================================
+  Last edited: 05 May 2026  16:01
+================================================
