@@ -214,3 +214,71 @@ DDoS attacks at Layer 4
 SYN Flood       → Flood TCP connections ❌
 UDP Flood       → Flood UDP packets ❌
 Port Scan       → Scan all ports ❌
+------------------------------------------------
+
+================================================
+  AWS SHIELD — SETUP NOTES
+================================================
+
+[ SHIELD STANDARD ]
+  - Free, automatic, always ON for every account
+  - Protects: CloudFront, Route 53, ELB, EC2 (L3 & L4)
+  - Nothing to configure — zero setup needed
+  - Verify: AWS Console → search "Shield" → confirm active
+
+------------------------------------------------
+
+[ SHIELD ADVANCED — SETUP STEPS ]
+
+  Step 1 — Open Shield Console
+    AWS Console → search "Shield" → AWS Shield
+
+  Step 2 — Subscribe
+    Shield Console → Getting Started
+    → Subscribe to Shield Advanced
+    NOTE: $3,000/month, 12-month commitment
+    NEED: Business or Enterprise Support plan
+
+  Step 3 — Add Protected Resources
+    Shield Console → Protected Resources → Add Resources
+    Resources to add:
+      [ ] CloudFront distribution
+      [ ] Route 53 hosted zone
+      [ ] ALB / NLB
+      [ ] Elastic IP (EC2)
+      [ ] Global Accelerator
+
+  Step 4 — Associate WAF Web ACL (for Layer 7)
+    Shield Console → Protected Resources
+    → Select resource → Associate WAF Web ACL
+    NOTE: Create WAF Web ACL first if you don't have one
+          AWS WAF → Create Web ACL → then come back here
+
+  Step 5 — Health-based Detection (recommended)
+    Shield Console → Protected Resources
+    → Select resource → Associate Health Check
+    NOTE: Create Route 53 health check first
+
+  Step 6 — Enable DRT Proactive Engagement
+    Shield Console → Overview
+    → Edit Proactive Engagement → Enable
+    Add emergency contact: email + phone
+    NOTE: Requires Business or Enterprise Support
+
+  Step 7 — Monitor
+    Shield Console → Events
+    → View by resource or time range
+
+------------------------------------------------
+
+[ IMPORTANT NOTES ]
+  - Layer 7 DDoS protection REQUIRES WAF Web ACL
+  - Shield Standard = L3 & L4 only (automatic)
+  - Shield Advanced = L3, L4 & L7 (manual setup)
+  - Cost protection: auto once subscribed
+  - DRT team only engages if proactive engagement ON
+
+================================================
+  Last edited: 05 May 2026  07:32
+================================================
+
