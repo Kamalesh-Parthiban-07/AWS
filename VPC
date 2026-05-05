@@ -129,6 +129,11 @@ Database in private subnet
    │   (Multi-AZ)   │             │   (Standby)    │
    └────────────────┘             └────────────────┘
 
+INTERNET ACCESS — WHO GETS WHAT
+─────────────────────────────────
+Public Subnet  (LB)   → Direct internet ✅
+Private Subnet (App)  → Only via NAT Gateway
+Private Subnet (DB)   → NO internet at all ❌
 
 ---------------------------
 NACL
