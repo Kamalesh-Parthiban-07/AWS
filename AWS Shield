@@ -343,3 +343,29 @@ Layer 4  →  reaches OS network stack, kills it
 Layer 7  →  reaches your actual app, kills it
 
 Layer 7 is hardest to block because the traffic looks exactly like real users — only the volume gives it away, which is why WAF rate limiting exists.
+---------------------------------------
+
+WAF alone — NOT enough for Layer 7 DDoS
+─────────────────────────────────────────
+WAF is designed for:
+  SQL injection        ✅
+  XSS                  ✅
+  Bot fingerprinting   ✅
+  Geo blocking         ✅
+  Rate limiting        ✅ (but limited)
+
+WAF is NOT designed for:
+  Massive HTTP floods   ❌ (volume too high)
+  Slowloris at scale    ❌
+  Distributed botnet    ❌ (millions of IPs)
+
+--------------------------------------------------
+
+The problem with WAF rate limiting:
+--------------------------------------------------
+WAF rate limit:  block if > 2000 req/min per IP
+DDoS attack:     1000 bots × 100 req/min each
+                 = each bot stays under limit ✅
+                 = total = 100,000 req/min     ❌
+                 WAF never triggers, server dies
+-----------------------------------------------
