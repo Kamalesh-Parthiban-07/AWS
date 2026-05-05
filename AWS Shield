@@ -285,3 +285,61 @@ Port Scan       → Scan all ports ❌
   Last edited: 05 May 2026  07:32
 ================================================
 
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+LAYER 3 — They send raw IP packets
+─────────────────────────────────────
+Normal:  Your browser → TCP handshake → HTTP request
+Attack:  Botnet       → raw IP packets, no handshake
+                        just flood the network pipe
+
+Tool:    hping3, scapy (craft raw packets)
+How:     Spoof source IP so you can't block one address
+         1000 bots × 1M packets = network pipe full
+         Server never even sees the request
+         Router/network dies first
+
+LAYER 4 — They abuse TCP/UDP handshake
+─────────────────────────────────────
+SYN Flood:
+  Normal TCP:   Client → SYN → Server replies SYN-ACK
+                Client → ACK → connection open ✅
+  Attack:       Bot    → SYN → Server replies SYN-ACK
+                Bot never sends ACK ❌
+                Server waits... waits... waits...
+                10,000 half-open connections
+                Server RAM full → crash
+
+UDP Flood:
+  Bot sends UDP packets to random ports
+  Server checks each port → no app listening
+  Server sends "port unreachable" back for each
+  Server exhausted replying to junk
+
+LAYER 7 — They send real HTTP requests
+─────────────────────────────────────
+HTTP Flood:
+  Bot sends:  GET /home HTTP/1.1
+              Host: yoursite.com
+  Looks 100% like real user traffic
+  Server processes each request fully
+  Hits database, renders page, burns CPU
+  1M requests/sec → server CPU 100% → down
+
+Slowloris:
+  Bot opens connection → sends headers slowly
+  GET /home HTTP/1.1\r\n
+  Host: yoursite.com\r\n
+  ... sends one header every 10 seconds ...
+  Never completes the request
+  Server holds connection open waiting
+  500 connections × slowloris = server full
+  No real users can connect ❌
+----------------
+The key difference:
+
+Layer 3  →  never reaches your server OS
+Layer 4  →  reaches OS network stack, kills it
+Layer 7  →  reaches your actual app, kills it
+
+Layer 7 is hardest to block because the traffic looks exactly like real users — only the volume gives it away, which is why WAF rate limiting exists.
