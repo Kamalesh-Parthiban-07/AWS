@@ -36,7 +36,32 @@ Route 53, DNS, and routing policies
 CloudFront edge locations
 S3 lifecycle policies for cost optimization
 Lambda trigger on S3 upload
-EBS vs EFS + what happens to EBS on EC2 termination
+---------------------------------------------------------------------------
+EBS vs EFS + what happens to EBS on EC2 termination?
+
+Key thing to remember — always set DeleteOnTermination = false for any EBS volume holding important data. Root volume deletion is the most common cause of accidental data loss on EC2.
+
+ROOT VOLUME vs EXTRA VOLUME
+─────────────────────────────
+Root volume (OS disk):
+  /dev/xvda or /dev/sda1
+  DeleteOnTermination = TRUE by default
+  EC2 dies → root EBS deleted ❌
+
+Extra volume (data disk):
+  /dev/xvdb, /dev/xvdc etc
+  DeleteOnTermination = FALSE by default
+  EC2 dies → extra EBS survives ✅
+
+HOW TO CHANGE DeleteOnTermination
+───────────────────────────────────
+At launch time:
+  EC2 Console → Launch Instance
+  → Storage → Advanced
+  → Delete on termination → No ✅
+
+---------------------------------------------
+
 Spot/right-sizing EC2 for batch jobs
 CloudWatch for EC2/VPC troubleshooting
 
