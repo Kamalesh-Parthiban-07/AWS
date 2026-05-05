@@ -369,3 +369,111 @@ DDoS attack:     1000 bots × 100 req/min each
                  = total = 100,000 req/min     ❌
                  WAF never triggers, server dies
 -----------------------------------------------
+how they can do?
+
+STEP 1 — Attacker builds a botnet
+───────────────────────────────────
+Attacker creates malware
+↓
+Spreads it via:
+  - Phishing emails         (click this link)
+  - Fake software downloads (crack, keygen)
+  - Infected websites       (drive-by download)
+  - USB drives
+↓
+Malware installs silently on victim computers
+Victim has NO idea their computer is infected
+
+Infected computers = BOTS
+Attacker controls all of them = BOTNET
+
+--------------------------
+
+STEP 2 — Victims are normal people
+────────────────────────────────────
+Bot1  = Someone's laptop in USA       (IP: 12.34.56.1)
+Bot2  = Someone's PC in India         (IP: 45.67.89.2)
+Bot3  = Someone's home router in UK   (IP: 78.90.12.3)
+...
+Bot1000 = Someone's old Android phone (IP: 99.88.77.6)
+
+All real IPs → WAF cannot block by IP
+All innocent people → just victims themselves
+
+-------------------------------------
+STEP 3 — Attacker sends the command
+─────────────────────────────────────
+Attacker sits at his computer
+Opens C2 server (Command & Control)
+Types one command:
+
+  ATTACK target=accessmyiq.com/login
+         rate=100req/min
+         duration=24hours
+
+C2 server broadcasts to all 1000 bots
+↓
+Every bot silently starts sending:
+  GET /login HTTP/1.1
+  Host: www.accessmyiq.com
+  100 times per minute
+  
+Victim's computer slightly slow
+They think nothing of it
+-----------------------------------------------------
+
+WHERE DO ATTACKERS GET BOTNETS?
+─────────────────────────────────
+Option 1 — Build own botnet
+  Spread malware for months
+  Collect 1000s of infected devices
+
+Option 2 — Rent a botnet (DDoS-for-hire)
+  Dark web services called "Booters" or "Stressers"
+  Pay $50-$500 → rent 10,000 bot botnet for 1 hour
+  Anyone can do it, no technical skill needed ❌
+
+Option 3 — IoT devices
+  Hack smart TVs, cameras, routers
+  Mirai botnet (2016) used 600,000 IoT devices
+  Took down Twitter, Netflix, GitHub in one attack
+
+------------------------------
+
+BOTTOM LINE
+────────────
+Attacker  →  one command from laptop
+Botnet    →  1000 real computers worldwide
+Target    →  accessmyiq.com/login
+Result    →  100,000 req/min → server down
+
+Shield Advanced detects the volume spike
+WAF detects bot signatures
+Together they stop it ✅
+
+--------------------------------------
+SIMPLE ANALOGY
+───────────────
+One laptop = one person
+throwing stones at a wall
+
+Botnet = 1000 people
+throwing stones at same wall
+
+Wall breaks with 1000 people
+One person just hurts his arm
+--------------------------------------
+ALSO — Attacker gets caught
+────────────────────────────
+Own laptop attack:
+  Server logs show:
+  103.21.45.67 → 1,000,000 requests
+  Police trace IP → attacker's house ❌
+  Attacker arrested
+
+Botnet attack:
+  Server logs show:
+  1000 different IPs worldwide
+  All innocent people's computers
+  Impossible to trace back to attacker ✅
+  Attacker stays hidden
