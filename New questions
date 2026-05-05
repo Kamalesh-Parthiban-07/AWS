@@ -3,7 +3,31 @@ Tell me about yourself + AWS services you've worked on
 
 ☁️ AWS Core
 EKS architecture and main components
-How apps (DB + web) communicate inside EKS
+------------------------------------------------------------
+How apps (DB + web) communicate inside EKS?
+
+Web App → DB
+─────────────
+Web pod talks to DB pod
+using ClusterIP Service ✅
+
+One line answer:
+"Apps communicate inside EKS
+ using Kubernetes ClusterIP Service"
+
+FULL FLOW STEP BY STEP
+────────────────────────
+Step 1:  Web pod → DNS lookup "my-db-service"
+Step 2:  CoreDNS resolves → ClusterIP 172.20.45.123
+Step 3:  Request hits kube-proxy iptables rules
+Step 4:  kube-proxy forwards → DB pod 10.0.2.8:5432
+Step 5:  DB responds → back to web pod
+Step 6:  Web pod gets data ✅
+
+API server involved?  NO ❌
+CoreDNS involved?     YES ✅
+kube-proxy involved?  YES ✅
+
 Types of load balancers
 Scaling concepts and where to attach scaling configs
 Internet Gateway vs NAT Gateway
