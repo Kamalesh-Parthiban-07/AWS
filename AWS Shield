@@ -3,6 +3,8 @@ AWS Shield is a managed DDoS protection service that protects your AWS applicati
 
 The most dangerous modern DDoS attacks happen at Layer 7 because they look like normal HTTP traffic, which is why Shield Advanced + WAF together is the production-grade combo.
 
+So botnet solves three things for the attacker — enough speed, unblockable IPs, and staying anonymous. That is why no serious attacker uses their own laptop.
+
 Think of it as a army protecting your building — WAF is the security guard at door, Shield is the army outside ✅
 
 WAF                          Shield
