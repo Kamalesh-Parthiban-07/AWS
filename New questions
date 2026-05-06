@@ -81,8 +81,8 @@ Step 5:  DB responds → back to web pod
 Step 6:  Web pod gets data ✅
 
 API server involved?  NO ❌
-CoreDNS involved?     YES ✅
-kube-proxy involved?  YES ✅
+CoreDNS involved?     YES ✅   Deployment
+kube-proxy involved?  YES ✅   Daemonset
 
 Types of load balancers
 Scaling concepts and where to attach scaling configs
