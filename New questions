@@ -1,3 +1,57 @@
+if we lost pem key what to do?
+
+========================
+     Recovery Options
+========================
+
+Option 1: EC2 Instance Connect (Easiest)
+----------------------------------------
+- Works if EC2 Instance Connect is enabled on the instance
+- Go to:
+  EC2 Console -> Select Instance -> Connect -> EC2 Instance Connect
+- No PEM key needed (AWS handles temporary authentication)
+- After login:
+  Add new public key to:
+  ~/.ssh/authorized_keys
+
+
+Option 2: AWS Systems Manager (SSM) Session Manager
+--------------------------------------------------
+- Works if SSM Agent is installed and instance has the correct IAM role
+- Go to:
+  EC2 Console -> Connect -> Session Manager
+- No PEM key needed
+- After login:
+  Add new key to:
+  ~/.ssh/authorized_keys
+
+========================================
+ Option 4: Detach Root Volume & Edit
+            (Last Resort)
+========================================
+
+1. Stop the instance
+
+2. Detach the root EBS volume
+
+3. Attach it to another EC2 instance
+   where you already have access
+
+4. Mount the volume:
+   sudo mount /dev/xvdf1 /mnt
+
+5. Edit the authorized_keys file:
+   sudo nano /mnt/home/ec2-user/.ssh/authorized_keys
+
+6. Paste your new public key
+
+7. Detach the volume and re-attach it
+   to the original instance as root
+   (/dev/xvda)
+
+8. Start the instance and connect
+   using the new key
+
 🧑‍💼 Intro & Background
 Tell me about yourself + AWS services you've worked on
 
