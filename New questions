@@ -14,6 +14,8 @@ Option 1: EC2 Instance Connect (Easiest)
   Add new public key to:
   ~/.ssh/authorized_keys
 
+echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCtE/p8cKIPsf0WKjipSyCvk1WQAzBX+3RFDk0HpVuz976sN5kGrjqlqIFArX1Nb92zv4S1wzzzdsf4jV3dXv0p/2rTJtgChpgX8oesJ+wyOvD+n3Tyml/vZUAU5W8jlYRx7Hm6xhjCRxWRZJeNGR+rddC8r1yWTn8GKncTQRERQohlQD0CuV56Vr1GuQe8YOK8Wa9hOx4Yj0MZbKW4AjiTNOKUyM+nGrsTkAqogOSkVFVPzLdJwwHsrJIjj6WMf4j81kOqH19H57Ec1Q6kUMuYGWNgTlugehJMLuUPyEOrPfWigfqRxOxnIHjTNT/fmG1RHU3SAiBu+B3Z3r420Pn9 another" >> ~/.ssh/authorized_keys
+
 
 Option 2: AWS Systems Manager (SSM) Session Manager
 --------------------------------------------------
