@@ -283,7 +283,16 @@ AWS manages the keys — you do nothing
 What is versioning in S3?
 
 Versioning means S3 keeps multiple versions of the same object every time you upload, overwrite, or delete it.
+-------------------------------------------------------------
+WITH VERSIONING
+────────────────
+file.txt v1 (original)     → kept ✅
+file.txt v2 (after edit)   → kept ✅
+file.txt v3 (latest edit)  → kept ✅
 
+Delete file → delete marker added
+Original still exists → recoverable ✅
+-------------------------------------------------------
 Versioning is enabled at Bucket Level only!
 
 Bucket Level — Not Object Level
