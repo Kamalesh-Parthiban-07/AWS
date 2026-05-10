@@ -49,7 +49,23 @@ Rotate keys / passwords
 Upload file → process automatically
 Resize images
 Convert formats
-
+-----------------------------------------------
+Content team uploads raw video (50GB)
+        │
+        ▼
+S3 triggers Lambda
+        │
+        ▼
+Lambda triggers video processing pipeline
+        │
+        ▼
+Converts to multiple qualities:
+├── 4K version
+├── 1080p version
+├── 720p version
+├── 480p version
+└── 360p version (slow internet users)
+-----------------------------------------------
 👉 Trigger from Amazon S3
 
 
