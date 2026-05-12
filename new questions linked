@@ -1,0 +1,65 @@
+1. you have deployed the EC2 instance via the auto scaling group. so it is having the application traffic for your production workload. So suddenly, the EC2, whichever launched from auto-scaling, launched and terminated within five minutes. The cycle is repeating frequently due to the health check issue. you need to review the instance, why it is failing the health checks, and wanted to retain the log from the failed instance to know for the investigation. So how do you achieve this?
+
+Step 1 — Put instance in Standby mode immediately:
+
+# Stop Auto Scaling from terminating the instance
+aws autoscaling enter-standby \
+  --instance-ids i-1234567890 \
+  --auto-scaling-group-name my-asg \
+  --should-decrement-desired-capacity
+
+# Now instance stays alive
+# Auto Scaling won't touch it
+# You can investigate freely
+
+In UI
+
+Go to AWS Console
+Search → EC2
+Left side → Auto Scaling Groups
+Click → your ASG name
+
+Click → Instance management tab
+        (bottom section)
+        │
+        ▼
+You see list of all instances
+Select → the problematic instance
+        (checkbox on left)
+        │
+        ▼
+Click → Actions button (top)
+Click → Set to Standby
+        │
+        ▼
+Popup appears:
+"Decrement desired capacity?" 
+Select → Yes
+Click → Set to Standby
+
+Visual flow:
+
+ASG → Instance Management tab
+       │
+       ├── i-1234  InService   ← problematic one
+       ├── i-5678  InService
+       └── i-9012  InService
+
+After standby:
+       ├── i-1234  Standby     ← safe now, investigate this
+       ├── i-5678  InService
+       └── i-9012  InService
+
+Full solution summary:
+
+Immediate action:
+1. Enter standby     → stop termination cycle
+2. SSH in            → check logs manually
+3. Find root cause   → fix the issue
+
+Permanent fix:
+4. CloudWatch agent  → logs always preserved
+5. Lifecycle hook    → auto save logs before termination
+6. Fix grace period  → give app time to start
+7. Fix health check  → correct path and port
+
