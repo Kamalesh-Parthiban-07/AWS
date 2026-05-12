@@ -82,3 +82,122 @@ Application logs → needs config ❌
 Nginx logs       → needs config ❌
 System logs      → needs config ❌
 
+Step 1 — Install CloudWatch Agent:
+
+sudo dnf install amazon-cloudwatch-agent -y
+
+Step 2 — Run the configuration wizard:
+
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-config-wizard
+
+===========================================
+CLOUDWATCH AGENT WIZARD - ALL QUESTIONS
+===========================================
+
+Q1: On which OS are you running?
+A:  1 (Linux)
+
+Q2: Are you running on EC2 or on-premises?
+A:  1 (EC2)
+
+Q3: Which user are you planning to run the agent?
+A:  1 (cwagent)
+
+Q4: Do you want to turn on StatsD daemon?
+A:  2 (no)
+
+Q5: Do you want to monitor metrics from CollectD?
+A:  2 (no)
+
+Q6: Do you want to monitor any host metrics?
+    e.g. CPU, memory, etc.
+A:  1 (yes)
+
+Q7: Do you want to monitor cpu metrics per core?
+A:  2 (no)
+
+Q8: Do you want to add ec2 dimensions?
+    (ImageId, InstanceId, InstanceType,
+     AutoScalingGroupName)
+A:  1 (yes)
+
+Q9: Do you want to aggregate ec2 dimensions?
+    (InstanceId)
+A:  1 (yes)
+
+Q10: Would you like to collect metrics at
+     high resolution?
+A:   4 (60 seconds)
+
+Q11: Are you satisfied with the above config?
+A:   1 (yes)
+
+Q12: Do you have any existing CloudWatch Log
+     Agent configuration file to import
+     for migration?
+A:   2 (no)
+
+Q13: Do you want to monitor any log files?
+A:   1 (yes)
+
+Q14: Log file path?
+A:   /var/log/messages
+
+Q15: Log group name?
+A:   my-ec2-logs
+
+Q16: Log group class?
+A:   1 (STANDARD)
+
+Q17: Log stream name?
+A:   press Enter (default {instance_id})
+
+Q18: Log Group Retention in days?
+A:   5 (7 days)
+
+Q19: Do you want to specify another log file?
+A:   2 (no)
+
+===========================================
+WHAT EACH ANSWER MEANS
+===========================================
+
+cwagent user     → dedicated secure user for agent
+No StatsD        → not needed for basic monitoring
+No CollectD      → not installed, skip to avoid error
+Yes host metrics → monitor CPU memory disk
+No per core      → simple overall CPU is enough
+Yes ec2 dims     → tag metrics with instance ID
+Yes aggregate    → group metrics by instance
+60 seconds       → collect every 1 minute
+Yes satisfied    → config looks good
+No migration     → fresh setup no old config
+Yes log files    → we want logs in CloudWatch
+/var/log/messages → system log file location
+my-ec2-logs      → log group name in CloudWatch
+STANDARD         → full featured log storage
+{instance_id}    → identify logs by instance
+7 days           → keep logs for 7 days
+
+===========================================
+END
+===========================================
+
+Save as cloudwatch-agent-wizard.txt in Notepad!
+
+Step 3 — Start the agent:
+
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+    -a fetch-config \
+    -m ec2 \
+    -c file:/opt/aws/amazon-cloudwatch-agent/bin/config.json \
+    -s
+
+Step 4 — Verify agent is running:
+
+sudo systemctl status amazon-cloudwatch-agent
+
+Step 5 — Enable agent on reboot:
+
+sudo systemctl enable amazon-cloudwatch-agent
+
