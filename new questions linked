@@ -75,3 +75,10 @@ Monitors these on EC2:
 ├── Disk usage          → sends to CloudWatch Metrics
 └── Network usage       → sends to CloudWatch Metrics
 
+CPU usage        → comes by default after install ✅
+Memory usage     → needs config ❌
+Disk usage       → needs config ❌
+Application logs → needs config ❌
+Nginx logs       → needs config ❌
+System logs      → needs config ❌
+
