@@ -63,3 +63,15 @@ Permanent fix:
 6. Fix grace period  → give app time to start
 7. Fix health check  → correct path and port
 
+CloudWatch agent
+
+Monitors these on EC2:
+├── Application logs    → /var/log/app/
+├── System logs         → /var/log/messages
+├── Nginx logs          → /var/log/nginx/
+├── Custom log files    → any path you configure
+├── CPU usage           → sends to CloudWatch Metrics
+├── Memory usage        → sends to CloudWatch Metrics
+├── Disk usage          → sends to CloudWatch Metrics
+└── Network usage       → sends to CloudWatch Metrics
+
