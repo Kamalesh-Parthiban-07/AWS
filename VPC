@@ -134,10 +134,34 @@ INTERNET ACCESS — WHO GETS WHAT
 Public Subnet  (LB)   → Direct internet ✅
 Private Subnet (App)  → Only via NAT Gateway
 Private Subnet (DB)   → NO internet at all ❌
+--------------
+Visual
+----------
 
+─────────────────────────
+
+THREE TIER (complete):
+─────────────────────────
+Internet
+    │
+    ▼
+Public Subnet (Tier 1)
+├── ALB/NLB
+├── Bastion Host
+└── NAT Gateway
+    │
+    ▼
+Private Subnet (Tier 2)
+└── EKS Nodes
+    │
+    ▼
+Isolated Subnet (Tier 3)
+├── RDS
+└── ElastiCache
+─────────────────────────-------------------------
 ---------------------------
 NACL
-
+----
 How are NACL rules evaluated?
 
 Default NACL vs Custom NACL
