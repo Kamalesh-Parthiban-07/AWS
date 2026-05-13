@@ -62,3 +62,47 @@ E-commerce (high traffic parts)
 Shopping cart, user sessions
 Social media apps
 Likes, comments, feeds
+---------------------------------------------------------
+
+Let's say, as RDS is connected, how does Multi-AZ work internally?
+
+By default RDS is Single AZ.
+
+Default behavior:
+
+Create RDS without Multi-AZ option
+→ Single AZ only
+→ No standby
+→ No automatic failover
+
+You have to explicitly enable it:
+
+AWS Console:
+
+Create RDS after create need to enable
+        │
+        ▼
+Availability & durability section
+        │
+        ▼
+You see two options:
+1. Single DB instance      ← default selected
+2. Multi-AZ DB instance    ← you must choose this
+
+Cost difference:
+
+Single AZ  → normal price
+Multi-AZ   → 2x price
+             because two instances running
+             primary + standby
+
+Summary:
+
+Enable Multi-AZ → AWS does rest
+Sync            → automatic ✅
+Failover        → automatic ✅
+DNS update      → automatic ✅
+Your job        → just enable it ✅
+------------------------------------------------------------------------------------------------------------------------
+
+
