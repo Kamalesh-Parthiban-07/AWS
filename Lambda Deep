@@ -78,3 +78,257 @@ Stateful apps
 
 Amazon EC2
 AWS Fargate
+
+-----------------------------------------------------------------------------------------------------
+Lifecycle is ALWAYS same:
+Trigger → Event → Lambda → Action → Response
+
+Only TRIGGER changes:
+├── API Gateway  → HTTP request from user
+├── S3           → file uploaded
+├── EventBridge  → scheduled time
+├── Manual test  → you click test button
+└── SNS/SQS      → message arrives
+
+lambda_handler always receives event
+Your code always runs same way
+---------------
+With API Gateway trigger:
+
+You hit URL:
+POST https://api.example.com/ec2
+Body: {"action": "start"}
+        │
+        ▼
+API Gateway receives
+        │
+        ▼
+Converts to Lambda event:
+{
+  "httpMethod": "POST",
+  "body": "{\"action\": \"start\"}"
+}
+        │
+        ▼
+Lambda wakes up
+        │
+        ▼
+Reads event.get('action') → "start"
+        │
+        ▼
+ec2.start_instances()
+        │
+        ▼
+Returns response
+        │
+        ▼
+API Gateway sends back to you
+------------------------------------------
+With EventBridge trigger (schedule):
+
+EventBridge cron → 9AM every day
+        │
+        ▼
+Sends event to Lambda:
+{
+  "action": "start"
+}
+        │
+        ▼
+Lambda starts EC2 automatically
+No API Gateway needed
+--------------------------------------------
+
+Explain Full lifecycle of a request in Lambda plus API Gateway?
+
+Best example — Food ordering app:
+
+User places order on Swiggy/Zomato
+        │
+        ▼
+POST https://api.swiggy.com/orders
+Body: {
+  "restaurant": "KFC",
+  "item": "Burger",
+  "quantity": 2
+}
+
+Tell them this flow:
+
+Step 1 - User clicks "Place Order" button
+         → HTTP POST request sent to API Gateway
+
+Step 2 - API Gateway checks:
+         → Is user logged in? (Auth)
+         → Valid request format?
+         → Not spamming? (Rate limit)
+
+Step 3 - API Gateway triggers Lambda
+         → Converts request to event object
+         → Passes to lambda_handler
+
+Step 4 - Lambda runs:
+         → Checks restaurant is open
+         → Calculates price
+         → Saves order to DB
+         → Sends notification to restaurant
+
+Step 5 - Lambda returns response:
+         → Order ID
+         → Estimated delivery time
+
+Step 6 - API Gateway sends back to user:
+         → "Order placed successfully!"
+         → "Delivery in 30 minutes"
+
+Then mention cold start smartly:
+
+Interviewer: "Any challenges with Lambda?"
+
+You say:
+"Yes, cold start is one challenge.
+First request takes 2-3 seconds extra
+because Lambda needs to initialize.
+
+For example in Swiggy during off-peak hours
+Lambda container gets destroyed after 15 mins idle.
+Next order request hits cold start.
+
+We fix this using:
+├── Provisioned Concurrency → keeps Lambda warm
+└── Smaller package size    → faster cold start"
+-------------------
+USER
+│
+│  clicks "Place Order" button
+│  POST https://api.swiggy.com/orders
+│  Body: {
+│    "restaurant": "KFC",
+│    "item":       "Burger",
+│    "quantity":   2
+│  }
+▼
+─────────────────────────────────────
+API GATEWAY
+─────────────────────────────────────
+│
+├── Step 1: Authentication
+│          Is user logged in?
+│          Valid JWT token?
+│          No  → 401 Unauthorized ❌
+│          Yes → continue ✅
+│
+├── Step 2: Authorization
+│          Is user allowed to order?
+│          Account banned? → 403 Forbidden ❌
+│          Normal user    → continue ✅
+│
+├── Step 3: Rate Limiting
+│          Too many requests?
+│          Spamming orders? → 429 Too Many Requests ❌
+│          Normal rate     → continue ✅
+│
+├── Step 4: Request Validation
+│          Correct format?
+│          Missing fields? → 400 Bad Request ❌
+│          Valid format   → continue ✅
+│
+├── Step 5: Convert to Lambda Event
+│          {
+│            "httpMethod": "POST",
+│            "path":       "/orders",
+│            "headers":    { "Authorization": "Bearer token" },
+│            "body":       "{\"restaurant\": \"KFC\"}"
+│          }
+│
+▼
+─────────────────────────────────────
+LAMBDA
+─────────────────────────────────────
+│
+├── Step 6: Cold Start? (first request)
+│          ┌─────────────────────────┐
+│          │ Download code package   │
+│          │ Start Python runtime    │
+│          │ import boto3            │
+│          │ import json             │
+│          │ s3 = boto3.client('s3') │
+│          │ ~2000ms delay           │
+│          └─────────────────────────┘
+│
+│          OR
+│
+│          Warm Start? (subsequent requests)
+│          ┌─────────────────────────┐
+│          │ Container already ready │
+│          │ ~0ms delay              │
+│          └─────────────────────────┘
+│
+├── Step 7: lambda_handler runs
+│
+│          def lambda_handler(event, context):
+│
+│          │
+│          ├── Parse request body
+│          │   body       = json.loads(event['body'])
+│          │   restaurant = body['restaurant']
+│          │   item       = body['item']
+│          │   quantity   = body['quantity']
+│          │
+│          ├── Business logic
+│          │   check restaurant is open ✅
+│          │   calculate total price    ✅
+│          │   check item availability  ✅
+│          │
+│          ├── Save order to DB
+│          │   order_id = db.save_order(...)  ✅
+│          │
+│          ├── Notify restaurant
+│          │   sns.publish(...)               ✅
+│          │
+│          └── Return response
+│              return {
+│                'statusCode': 201,
+│                'body': json.dumps({
+│                  'order_id':          'ORD-123',
+│                  'message':           'Order placed!',
+│                  'delivery_time':     '30 minutes'
+│                })
+│              }
+│
+▼
+─────────────────────────────────────
+API GATEWAY (response processing)
+─────────────────────────────────────
+│
+├── Step 8: Receives Lambda response
+│
+├── Step 9: Add CORS headers
+│          (for browser to accept response)
+│
+├── Step 10: Map status code
+│           201 Created
+│
+├── Step 11: Send HTTP response to user
+│
+▼
+─────────────────────────────────────
+USER
+─────────────────────────────────────
+│
+└── Sees on screen:
+    "Order placed successfully! 🎉"
+    "Estimated delivery: 30 minutes"
+    "Order ID: ORD-123"
+
+Error scenarios to mention:
+
+Restaurant closed    → Lambda returns 400
+Payment failed       → Lambda returns 402
+Server crash         → Lambda returns 500
+Too many orders      → API Gateway returns 429
+Not logged in        → API Gateway returns 401
+
+
+
+
