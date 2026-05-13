@@ -231,3 +231,115 @@ Private subnet must have:
 ├── 10.0.0.0/16 → local      ✅
 └── 0.0.0.0/0  → NAT Gateway ✅
 ------------------------------------------------------------------------------
+for example, there is an EC2 maintenance that's been called out for after two weeks, so there is a notification has been published on the AWS dashboard for a particular EC2 instance. So now that fault has a critical change window, so you don't want that set last deadline as per the notification, but you don't want to do that. So is there a way to postpone this?
+
+What is happening:
+
+AWS sends notification:
+"Your EC2 instance i-1234567890
+requires maintenance by May 28, 2026"
+
+You don't want maintenance on that date
+Too critical for your production workload
+
+----
+
+Yes! You can postpone it:
+--
+Option 1 — Stop and Start instance:
+--
+This is the easiest way!
+
+Stop instance → Start instance
+        │
+        ▼
+AWS moves instance to new host
+        │
+        ▼
+Maintenance automatically cleared ✅
+Deadline gone ✅
+No need to wait for AWS schedule
+--
+AWS Console:
+EC2 → Instances
+Select instance
+Actions → Instance State → Stop
+Wait for stopped
+Actions → Instance State → Start
+--
+
+Why stop/start works:
+
+Stop/Start    → moves to NEW physical host
+               maintenance was for OLD host
+               new host has no pending maintenance
+               notification disappears ✅
+
+Reboot        → stays on SAME host
+               maintenance still pending ❌
+               notification stays ❌
+---
+Option 2 — Reschedule from AWS Console:
+
+Go to AWS Console
+EC2 → Instances
+Click your instance
+        │
+        ▼
+Scheduled Events tab
+        │
+        ▼
+Select the maintenance event
+Click → Reschedule
+Pick a new date/time
+        │
+        ▼
+AWS reschedules to your preferred time ✅
+---
+Option 4 — Auto Scaling Group:
+
+If EC2 is in ASG:
+Terminate the instance
+        │
+        ▼
+ASG launches new instance
+        │
+        ▼
+New instance has no maintenance ✅
+Old instance gone ✅
+----
+
+Types of maintenance events:
+
+Reboot required:
+→ AWS reboots your instance
+→ Stop/Start clears it ✅
+→ Can reschedule ✅
+
+Retirement:
+→ Hardware failing
+→ Must stop/start ✅
+→ Cannot avoid completely
+→ Just postpone
+
+System maintenance:
+→ Network/power maintenance
+→ Usually no action needed
+→ AWS handles automatically
+----
+Summary:
+
+Easiest fix     → Stop and Start instance
+                  maintenance clears automatically
+
+Reschedule      → pick your own date/time
+                  from console or CLI
+
+ASG instances   → terminate → new instance launched
+                  no maintenance on new one
+
+Key difference:
+Stop/Start  → new host = maintenance gone ✅
+Reboot      → same host = maintenance stays ❌
+---------------------------------------------------------------------------------------------------------
+
