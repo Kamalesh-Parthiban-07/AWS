@@ -168,3 +168,66 @@ Serverless / Lambda usage
 Overall it was well-rounded — fundamentals, architecture, hands-on IaC, and some quick coding. No surprises, but depth was tested on almost every topic.
 
 If you're targeting DevOps/Cloud roles at product companies or MNCs, this is a solid checklist to work through 💪
+----------------------------------------------------------------------------------------------
+let's say EC2 is not reachable. How do you troubleshoot this?
+
+Problem                Fix
+─────────────────────────────────────
+Wrong IP used        → check public IP changed
+Security group       → add port 22 inbound
+No public IP         → associate Elastic IP
+IGW missing          → attach to VPC
+Route table wrong    → add 0.0.0.0/0 → IGW
+SSH service down     → use Session Manager
+Disk full            → extend volume
+Instance stopped     → start it
+Wrong key pair       → use correct .pem file
+NACL blocking        → check inbound/outbound
+----------------
+Check Security Group:
+-------------------
+EC2 → Security Groups
+Click your SG
+Inbound rules:
+
+For SSH:
+Port 22 → your IP allowed? ✅
+Port 22 → 0.0.0.0/0?       ✅
+
+For App:
+Port 80  → allowed? ✅
+Port 443 → allowed? ✅
+Port 8080→ allowed? ✅
+
+If port missing → add inbound rule
+-------------------------------------------
+Check Network ACL:
+
+VPC → Network ACLs
+Find NACL for your subnet
+
+Inbound rules:
+├── Port 22  allowed? ✅
+└── Port 80  allowed? ✅
+
+Outbound rules:
+├── Ephemeral ports allowed? ✅
+│   (1024-65535)
+└── If blocked → traffic cant return ❌
+-----------------------------------------------
+ Check Route Table:
+-------------------
+VPC → Route Tables
+Find route table for your subnet
+
+Public subnet must have:
+├── 10.0.0.0/16 → local      ✅
+└── 0.0.0.0/0  → IGW         ✅
+                  ↑
+              Internet Gateway
+              missing = not reachable
+
+Private subnet must have:
+├── 10.0.0.0/16 → local      ✅
+└── 0.0.0.0/0  → NAT Gateway ✅
+------------------------------------------------------------------------------
