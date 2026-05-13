@@ -341,5 +341,21 @@ ASG instances   → terminate → new instance launched
 Key difference:
 Stop/Start  → new host = maintenance gone ✅
 Reboot      → same host = maintenance stays ❌
+---
+If maintenance was scheduled it would show here:
+
+Status and alarms tab
+        │
+        ▼
+Scroll down below Alarms section
+        │
+        ▼
+"Scheduled events" section appears
+Shows:
+├── Event type
+├── Description
+├── Start time
+├── End time
+└── Reschedule button
 ---------------------------------------------------------------------------------------------------------
 
