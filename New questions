@@ -359,3 +359,56 @@ Shows:
 └── Reschedule button
 ---------------------------------------------------------------------------------------------------------
 
+When designing a VPC architecture, should a Load Balancer be placed in a public subnet or private subnet? Why?
+
+External Load Balancer → Public Subnet:
+
+Internet users
+        │
+        │ public internet
+        ▼
+Load Balancer (PUBLIC subnet)
+        │
+        │ private traffic
+        ▼
+Application servers (PRIVATE subnet)
+        │
+        │ private traffic
+        ▼
+Database (ISOLATED subnet)
+-------------------------------
+Why public subnet for external LB:
+
+Load Balancer needs:
+├── Public IP address     → to receive internet traffic
+├── Internet Gateway      → to reach internet
+└── Public subnet         → has route to IGW
+
+If LB in private subnet:
+→ No public IP
+→ Internet cant reach it
+→ Users cant access app ❌
+-----
+
+Summary:
+
+External LB → PUBLIC subnet
+→ Faces internet
+→ Has public IP
+→ Users access from internet
+→ Routes to private app servers
+
+Internal LB → PRIVATE subnet
+→ Never faces internet
+→ Only internal traffic
+→ Microservices communication
+→ More secure
+
+Rule:
+Anything facing internet  → public subnet
+Anything internal only    → private subnet
+----------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
