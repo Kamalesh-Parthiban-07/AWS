@@ -408,7 +408,81 @@ Rule:
 Anything facing internet  → public subnet
 Anything internal only    → private subnet
 ----------------------------------------------------------------------------------------------------------------------------------------------
+How do you implement cross-account access in Amazon Web Services using IAM roles?
 
+Perfect summary:
 
+Account A → IAM User login    (human/service authenticates)
+Account B → IAM Role          (resource being accessed)
+
+Full flow:
+
+Account A                          Account B
+─────────────────                  ─────────────────
+IAM User                           IAM Role
+(login with                        (cross-account-role)
+ access keys                               │
+ or console)                               │
+     │                                     │
+     │  sts:AssumeRole                     │
+     └──────────────────────────────────→  │
+                                           │
+     ←────────────────────────────────────┘
+          temp credentials
+     │
+     │ access Account B
+     ▼
+     S3, EKS, RDS etc ✅
+------------------------------------------------
+Way 1 — Switch Role in AWS Console:
+----
+Perfect understanding:
+-
+Step 1 → Login to Account A
+         using IAM user credentials
+         (your normal login)
+
+Step 2 → Switch Role to Account B
+         without logging out ✅
+         without separate login ✅
+---
+Login as IAM User first
+        │
+        ▼
+Top right corner
+Click → your username
+Click → Switch Role
+        │
+        ▼
+Fill:
+Account ID → 222222222222
+Role name  → cross-account-role
+Display name → Prod Account
+        │
+        ▼
+Now you are operating as that role ✅
+Access Account B resources ✅
+------------------------------------
+Way 2 — AWS CLI assume role:
+-----
+# First configure your IAM user credentials
+aws configure
+AWS Access Key ID     → your key
+AWS Secret Access Key → your secret
+Region               → us-east-2
+
+# Then assume role
+aws sts assume-role \
+  --role-arn arn:aws:iam::222222222222:role/cross-account-role \
+  --role-session-name my-session
+
+# Export temp credentials
+export AWS_ACCESS_KEY_ID=ASIA...
+export AWS_SECRET_ACCESS_KEY=xxx...
+export AWS_SESSION_TOKEN=yyy...
+
+# Now CLI uses role ✅
+aws s3 ls s3://prod-bucket
+---------------------------------
 
 
