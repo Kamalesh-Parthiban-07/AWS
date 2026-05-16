@@ -412,6 +412,12 @@ How do you implement cross-account access in Amazon Web Services using IAM roles
 
 Yes! Another AWS account = completely separate AWS account.
 
+Cross account access works in 4 steps —
+first create IAM role in Account B with trust policy allowing Account A, attach required permissions POLICY to that role, then attach sts:AssumeRole policy to IAM user in Account A.
+When user runs aws sts assume-role command, they get temporary AccessKey, SecretKey and SessionToken valid for 1 hour to access Account B resources without sharing any permanent credentials.
+
+
+
 Perfect summary:
 
 Account A → IAM User login    (human/service authenticates)
@@ -583,11 +589,55 @@ aws s3 ls s3://prod-bucket
 ----------------------------------------------------
 Simple answer:
 
-Step 1 → Create role in Account B        ← Account B
-Step 2 → Attach permission policy        ← Account B (same role)     // "whoever assumes this role can do these actions in Account B"
-Step 3 → Allow sts:AssumeRole            ← Account A                 // policy attached to IAM user in Account A!
-Step 4 → Assume role                     ← Account A (user)
+===========================================
+CROSS ACCOUNT ACCESS - SIMPLE STEPS
+===========================================
 
+ACCOUNT B (Prod) - Admin does this:
+─────────────────────────────────────
+Step 1 → Create IAM Role in Account B
+         Role name  → cross-account-role
+         Trust policy → trust Account A
+         (who can assume this role)
+
+Step 2 → Attach Permission Policy to same role
+         (what Account A user can DO in Account B)
+         Example:
+         s3:GetObject
+         s3:PutObject
+         eks:DescribeCluster
+
+ACCOUNT A (Dev) - Admin does this:
+─────────────────────────────────────
+Step 3 → Attach Policy to IAM User in Account A
+         Policy allows sts:AssumeRole
+         Resource → Account B role ARN
+         (gives user permission to assume role)
+
+ACCOUNT A (Dev) - User does this:
+─────────────────────────────────────
+Step 4 → Run assume role command
+         aws sts assume-role \
+           --role-arn arn:aws:iam::222:role/cross-account-role \
+           --role-session-name my-session
+                │
+                ▼
+         Gets back:
+         ├── AccessKeyId     → temp access key
+         ├── SecretAccessKey → temp secret key
+         ├── SessionToken    → must use this
+         └── Expiration      → valid 1 hour
+
+Step 5 → Export temp credentials
+         export AWS_ACCESS_KEY_ID=ASIA...
+         export AWS_SECRET_ACCESS_KEY=xxx...
+         export AWS_SESSION_TOKEN=yyy...
+
+Step 6 → Access Account B resources
+         aws s3 ls
+         aws eks list-clusters
+         aws ec2 describe-instances
+--------------------
 aws sts assume-role command
         │
         ▼
