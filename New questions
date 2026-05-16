@@ -500,9 +500,9 @@ Step 1 — Create role in Account B (Prod):
     {
       "Effect": "Allow",
       "Principal": {
-        "AWS": "arn:aws:iam::111111111111:root"
+        "AWS": "arn:aws:iam::111111111111:root"             // This means trust Account A
       },
-      "Action": "sts:AssumeRole",
+      "Action": "sts:AssumeRole",                          // what they can do  assume this role
       "Condition": {
         "StringEquals": {
           "sts:ExternalId": "unique-external-id"
