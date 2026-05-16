@@ -413,7 +413,7 @@ How do you implement cross-account access in Amazon Web Services using IAM roles
 Yes! Another AWS account = completely separate AWS account.
 
 Cross account access works in 4 steps —
-first create IAM role in Account B with trust policy allowing Account A, attach required permissions POLICY to that role, then attach sts:AssumeRole policy to IAM user in Account A.
+first create IAM role in Account B with trust policy allowing Account A, attach required permissions POLICY to that role, then attach (STS = Security Token Service) sts:AssumeRole policy to IAM user in Account A.
 When user runs aws sts assume-role command, they get temporary AccessKey, SecretKey and SessionToken valid for 1 hour to access Account B resources without sharing any permanent credentials.
 
 
