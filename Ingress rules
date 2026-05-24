@@ -1,6 +1,7 @@
 Host-based  = different domains/subdomains
 Path-based  = same domain, different paths
 Both combined — host-based + path-based routing together. ✅
+TLS/HTTPS based routing
 ---------------------------------------------------
 
 Host-based routing example
@@ -115,3 +116,22 @@ rules:
             port:
               number: 80
 ------------------------------------------------------
+TLS/HTTPS based routing
+
+http://myapp.com  → redirects to https ✅
+https://myapp.com → my-service ✅
+--------------------------
+tls:
+  - hosts:
+    - myapp.com
+    secretName: myapp-tls    # SSL certificate
+rules:
+  - host: myapp.com
+    http:
+      paths:
+      - path: /
+        backend:
+          service:
+            name: my-service
+            port:
+              number: 80
