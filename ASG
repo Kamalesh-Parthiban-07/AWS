@@ -131,14 +131,16 @@ Replaces unhealthy instances automatically 🔄
 Here’s a step-by-step way to set up an Auto Scaling Group (ASG) in AWS, in a simple, interview-friendly way?
 
 1. Create a Launch Template or Launch Configuration
-A Launch Template defines how your EC2 instances should launch:
-AMI (Amazon Machine Image)
-Instance type (t2.micro, t3.large, etc.)
-Key pair for SSH
-Security group
-User data (optional startup scripts)
-EBS volume
-Packages
+Launch Template
+├── AMI ID                  ← which OS/image
+├── Instance Type           ← t3.medium, m5.large etc
+├── EBS Volumes             ← root volume size, type (gp3/gp2)
+├── Key Pair                ← SSH access
+├── Security Groups         ← firewall rules
+├── IAM Instance Profile    ← permissions for the EC2
+├── User Data               ← bootstrap script (install packages etc)
+├── Network settings        ← subnet, public IP
+└── Tags                    ← name, env etc
 
 Tip: Launch Templates are preferred over Launch Configurations—they’re more flexible.
 
