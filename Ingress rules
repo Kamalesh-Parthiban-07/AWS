@@ -1,0 +1,117 @@
+Host-based  = different domains/subdomains
+Path-based  = same domain, different paths
+Both combined — host-based + path-based routing together. ✅
+---------------------------------------------------
+
+Host-based routing example
+---------------------------------------
+rules:
+  - host: api.myapp.com
+    http:
+      paths:
+      - path: /
+        backend:
+          service:
+            name: api-service
+            port:
+              number: 80
+
+  - host: auth.myapp.com
+    http:
+      paths:
+      - path: /
+        backend:
+          service:
+            name: auth-service
+            port:
+              number: 80
+
+  - host: dashboard.myapp.com
+    http:
+      paths:
+      - path: /
+        backend:
+          service:
+            name: dashboard-service
+            port:
+              number: 80
+------------------------------------------
+Path base Routing
+--------------
+rules:
+  - host: myapp.com
+    http:
+      paths:
+      - path: /api
+        backend:
+          service:
+            name: api-service
+            port:
+              number: 80
+
+      - path: /auth
+        backend:
+          service:
+            name: auth-service
+            port:
+              number: 80
+
+      - path: /dashboard
+        backend:
+          service:
+            name: dashboard-service
+            port:
+              number: 80
+----------------------------------------
+Both combined — host-based + path-based routing together. ✅
+------------------------------------------------------------------
+
+rules:
+  - host: api.myapp.com
+    http:
+      paths:
+      - path: /users
+        backend:
+          service:
+            name: users-service
+            port:
+              number: 80
+      - path: /orders
+        backend:
+          service:
+            name: orders-service
+            port:
+              number: 80
+
+  - host: auth.myapp.com
+    http:
+      paths:
+      - path: /login
+        backend:
+          service:
+            name: login-service
+            port:
+              number: 80
+      - path: /signup
+        backend:
+          service:
+            name: signup-service
+            port:
+              number: 80
+
+  - host: dashboard.myapp.com
+    http:
+      paths:
+      - path: /reports
+        backend:
+          service:
+            name: reports-service
+            port:
+              number: 80
+      - path: /analytics
+        backend:
+          service:
+            name: analytics-service
+            port:
+              number: 80
+------------------------------------------------------
