@@ -30,12 +30,7 @@ Ingress is a Layer 7 (HTTP/HTTPS) concept, while:
 How it works:
 You define a Kubernetes Ingress resource
 
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: my-app
-spec:
-  rules:
+rules:
   - http:
       paths:
       - path: /api
@@ -44,6 +39,26 @@ spec:
             name: api-service
             port:
               number: 80
+
+      - path: /auth
+        backend:
+          service:
+            name: auth-service
+            port:
+              number: 80
+
+      - path: /dashboard
+        backend:
+          service:
+            name: dashboard-service
+            port:
+              number: 80
+
+         Path             Backend Service
+user hits /api        → api-service:80
+user hits /auth       → auth-service:80
+user hits /dashboard  → dashboard-service:80
+
 Client → ALB → Ingress Rules → Kubernetes Service → Pods
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Network Load Balancer (NLB)
