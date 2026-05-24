@@ -208,3 +208,18 @@ Changing from t2.micro → t2.large does NOT cause data loss as long as:
 
 You didn’t terminate the instance
 You’re using EBS (default)
+
+Nginx        ✅ installed on EBS → comes back
+Apache       ✅ installed on EBS → comes back
+MySQL        ✅ installed on EBS → comes back
+Docker       ✅ installed on EBS → comes back
+Java app     ✅ installed on EBS → comes back
+Node.js      ✅ installed on EBS → comes back
+
+Quick summary:
+
+Storage                Safe?
+--------------------------------
+EBS volumes            ✅ Safe
+Instance Store         ❌ Lost
+RAM                    ❌ Lost
