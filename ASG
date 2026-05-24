@@ -223,3 +223,10 @@ Storage                Safe?
 EBS volumes            ✅ Safe
 Instance Store         ❌ Lost
 RAM                    ❌ Lost
+
+You cannot change AMI on an existing EC2 directly — AMI is set at launch time only.
+
+Existing EC2
+→ Go to Actions
+→ No option to change AMI ❌
+→ AMI is fixed at launch
