@@ -2,6 +2,18 @@ S3
 
 S3 (Simple Storage Service) is AWS's object storage service where you can store unlimited files (objects) like images, videos, backups, and logs in buckets.
 
+---------------------------------------------
+Simple way to remember:
+---------------------------------------
+
+Properties tab          Management tab
+──────────────          ──────────────
+Versioning              Lifecycle rules
+Server access logging   Replication
+Static website hosting
+Encryption
+----------------------------------------------------------------
+
 is the object that we upload in s3 bucket by default is private?
 
 Yes! Objects uploaded to an S3 bucket are private by default.
