@@ -1,0 +1,53 @@
+if we define rule in ingress resource does alb also create sam rules in alb?
+
+Yes! That's exactly what ALB Controller does:
+
+You write Ingress resource (YAML)
+        ↓
+ALB Controller reads it
+        ↓
+Automatically creates same rules in AWS ALB
+
+------------------------------------------------------
+Example:
+
+# You write this
+rules:
+  - host: api.myapp.com
+    http:
+      paths:
+      - path: /users  → users-service
+      - path: /orders → orders-service
+---
+ALB Controller automatically creates:
+--
+AWS ALB Console
+└── Listeners
+    └── 80/443
+        └── Rules
+            ├── IF host = api.myapp.com AND path = /users  → forward to users-service ✅
+            ├── IF host = api.myapp.com AND path = /orders → forward to orders-service ✅
+            └── default → 404
+---------------------------------------------------------------
+
+That's the magic of ALB Controller:
+
+Without ALB Controller:
+→ manually create ALB
+→ manually add each rule in AWS console
+→ painful for 100s of services ❌
+
+With ALB Controller:
+→ just write Ingress YAML
+→ ALB rules created automatically ✅
+→ update YAML → ALB rules update automatically ✅
+→ delete YAML → ALB rules deleted automatically ✅
+
+------------------------------------------------------
+NGINX Controller works differently:
+
+NGINX Controller:
+→ does NOT create anything in AWS
+→ NGINX pod itself handles the routing
+→ rules live inside NGINX config, not AWS ✅
+--------------------------------------------------------
