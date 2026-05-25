@@ -1,3 +1,6 @@
+! Regardless of which controller you use, Ingress resource (YAML) is always needed — that's how you define the routing rules:
+---------------------------------------------------------------------------------------
+
 Host-based  = different domains/subdomains
 Path-based  = same domain, different paths
 Both combined — host-based + path-based routing together. ✅
