@@ -51,3 +51,43 @@ NGINX Controller:
 → NGINX pod itself handles the routing
 → rules live inside NGINX config, not AWS ✅
 --------------------------------------------------------
+how many max rules one alb have?
+
+one ALB can have 100 rules (excluding default rules), but this is adjustable — you can request an increase from AWS. amazon
+
+Full ALB limits:
+
+Rules per ALB          → 100 (adjustable) ✅
+Listeners per ALB      → 50
+Targets per ALB        → 1,000
+Target Groups per ALB  → 100
+
+means one alb can have 400plus rules
+
+Yes! Since it's adjustable, you can request AWS to increase beyond 100:
+
+Default limit  → 100 rules
+After request  → 200, 300, 400+ rules ✅
+
+AWS Console
+→ Service Quotas
+→ Elastic Load Balancing
+→ Rules per Application Load Balancer
+→ Request quota increase
+→ Enter desired value (e.g. 500)
+→ Submit ✅
+--------------------------
+This is why your company uses NGINX instead of ALB:
+
+Your company → 400+ services
+ALB limit    → 100 rules per ALB
+
+With ALB:
+→ need 4+ ALBs for 400 services
+→ expensive ❌
+
+With NGINX:
+→ unlimited rules in NGINX config
+→ single NLB + NGINX handles all 400 services
+→ cost effective ✅
+----------------------------------------------------
