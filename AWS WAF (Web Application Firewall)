@@ -100,6 +100,29 @@ AWS Console
 → Name: my-waf
 → Resource: ALB / CloudFront / API Gateway
 
+Why NLB doesn't support WAF:
+
+NLB works at Layer 4 (TCP/UDP)
+→ only sees IP and port
+→ cannot read HTTP content
+→ cannot inspect URLs, headers, cookies
+
+WAF needs Layer 7 (HTTP)
+→ needs to read URL parameters
+→ needs to inspect request body
+→ needs to see cookies and headers
+
+L4 + WAF = impossible ❌
+L7 + WAF = works perfectly ✅
+
+To add WAF protection:
+
+Option 1: Add CloudFront in front
+Internet → CloudFront (WAF here ✅) → NLB → NGINX → Pods
+
+Option 2: Use ALB instead of NLB
+Internet → ALB (WAF here ✅) → NGINX → Pods
+
 Step 2 — Add AWS Managed Rules:
 
 Add rules
