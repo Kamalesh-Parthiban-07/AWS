@@ -19,6 +19,11 @@ Script = JavaScript used to attack
 
 Cookie stolen from accessmyiq.com → sent across to attacker.com. ✅
 -------
+so it bacically steal cookies from user browser
+
+Yes! That's the core goal of XSS:
+
+XSS main target = cookies in victim's browser
 
 Method 1 — URL parameter injection:
 
