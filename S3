@@ -352,6 +352,33 @@ S3 Console
 → Enable ✅
 → Save changes
 
+-------------------------
+You can delete permanently, but needs extra step:
+
+Normal delete (versioning enabled):
+→ adds Delete Marker
+→ file looks deleted but still exists ✅
+→ NOT permanent
+
+Permanent delete:
+→ delete the specific version ID
+→ then it's gone forever ✅
+
+How to permanently delete:
+
+S3 Console
+→ your bucket
+→ Show versions (toggle ON)
+      ↓
+Now you can see:
+├── file.txt (Delete Marker)  ← delete this too
+├── file.txt (version v2)     ← delete this
+└── file.txt (version v1)     ← delete this
+
+Delete all versions + delete marker
+→ file permanently gone ✅
+------------------------------------------------------------
+
 Storage Cost with Versioning
 ⚠️ Every version is stored separately and you pay for all versions.
 file.txt v1 = 10 MB  → you pay for 10 MB
