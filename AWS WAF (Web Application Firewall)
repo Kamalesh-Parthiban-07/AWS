@@ -178,13 +178,48 @@ IP Blacklisting      → Block specific IPs ✅
 Geo Blocking         → Block specific countries ✅
 Rate Limiting        → Block too many requests ✅
 ----------------------------------------------------
-"SQL Injection is when an attacker inserts malicious SQL code into input fields to manipulate the database — for example entering admin'-- to bypass login or DROP 
-TABLE to delete data. AWS WAF blocks this using the managed AWSManagedRulesSQLiRuleSet rule which inspects all incoming requests including URL parameters, 
-request body, headers and cookies for known SQL injection patterns. When detected the request is blocked with a 403 before it ever reaches the application or 
-database. In our setup WAF sits at CloudFront so attacks are blocked at the edge."
+SQL Injection:
+
+SQL Injection is inserting malicious SQL code into input fields to manipulate the database — bypassing login, stealing, or deleting data.
+In our setup WAF sits at CloudFront so attacks are blocked at the edge."
 -----------------------
 SQL Injection attack:
 ----------------------------
+Normal login flow:
+
+User types:
+Username: kamalesh
+Password: mypassword
+
+App runs this SQL:
+SELECT * FROM users 
+WHERE username='kamalesh' 
+AND password='mypassword'
+
+Result: user found → login ✅
+
+----
+Even more dangerous — drop table:
+-------------
+Username: '; DROP TABLE users; --
+
+App builds:
+SELECT * FROM users WHERE username='';
+DROP TABLE users;
+--' AND password='anything'
+
+→ entire users table deleted ❌
+--------------------------------
+Steal entire database:
+-------------------
+Username: ' UNION SELECT username, password FROM users --
+
+App builds:
+SELECT * FROM users WHERE username=''
+UNION SELECT username, password FROM users --'
+
+→ returns all usernames and passwords ❌
+
 Attacker enters:
   Username: admin'--
   Password: anything
@@ -203,19 +238,6 @@ Query becomes:
         ↓
 Login without password ❌
 Full admin access ❌
-------------------------------
-More dangerous example:
----------------------------
-Attacker enters:
-  '; DROP TABLE users;--
-
-SQL becomes:
-  SELECT * FROM users
-  WHERE id='';
-  DROP TABLE users;--'
-        ↓
-Entire users table DELETED ❌
-All user data gone ❌
 -------------------------------
 How AWS WAF blocks SQL Injection:
 
