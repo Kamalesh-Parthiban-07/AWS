@@ -1,7 +1,24 @@
 AWS WAF is a web application firewall that protects your web applications from common web exploits and attacks like SQL injection, XSS, and DDoS.
 -------------------------------------------------------------
 XSS protection means preventing Cross-Site Scripting (XSS) attacks
-XSS is when an attacker injects malicious JavaScript into a web application, which then runs in other users’ browsers.
+XSS is injecting malicious JavaScript into a webpage to steal cookies/data from other users' browsers.
+
+why it is called Cross-Site Scripting
+
+Because the attack crosses between two sites:
+
+Attacker's site          Victim's site
+(attacker.com)    ←    (accessmyiq.com)
+
+Script injected on victim's site
+→ sends data ACROSS to attacker's site
+
+Cross  = crossing between sites
+Site   = websites involved
+Script = JavaScript used to attack
+
+Cookie stolen from accessmyiq.com → sent across to attacker.com. ✅
+-------
 
 Method 1 — URL parameter injection:
 
