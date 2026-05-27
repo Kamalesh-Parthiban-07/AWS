@@ -4,7 +4,7 @@ AWS IAM (Identity and Access Management) – Short Summary
 
 Users: Individual accounts with login or access keys
 Groups: Collections of users with shared permissions
-Roles: Temporary access identities for services or users
+Roles: Temporary access credentials via AWS STS ✅ for services or users
 Policies: JSON rules that define what actions and Resource are allowed or denied
 
 {
