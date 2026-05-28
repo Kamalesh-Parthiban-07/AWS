@@ -467,3 +467,64 @@ Custom Rules         | Your own rules
 ================================================
   Last edited: 05 May 2026  16:01
 ================================================
+
+Attach WAF TO Shield Advanced and CloudFront ✅
+
+Step 1 — Create WAF Web ACL:
+
+AWS Console
+→ WAF & Shield
+→ Web ACLs
+→ Create Web ACL
+→ Name: my-waf
+→ Resource: CloudFront
+→ Add rules:
+   ✅ AWSManagedRulesCommonRuleSet
+   ✅ AWSManagedRulesKnownBadInputsRuleSet
+→ Create ✅
+
+Step 2 — Attach WAF to CloudFront:
+
+CloudFront Console
+→ Your distribution (NLB origin)
+→ Edit
+→ Security tab
+→ Web Application Firewall (WAF)
+→ Enable security protections
+→ Select your Web ACL: my-cloudfront-waf
+→ Save changes ✅
+
+Step 3 — Link WAF to Shield Advanced:
+
+Shield Console
+→ Protected Resources
+→ Select your CloudFront
+→ Associate WAF Web ACL
+→ Select your WAF ✅
+→ Save ✅
+
+How they work together:
+
+DDoS attack hits CloudFront
+      ↓
+Shield detects DDoS pattern
+      ↓
+Shield automatically updates
+WAF rules to block attack IPs ✅
+      ↓
+WAF blocks those IPs
+      ↓
+Attack mitigated ✅
+
+Full protection flow:
+
+Internet
+    ↓
+CloudFront
+    ├── Shield → blocks DDoS ✅
+    ├── WAF    → blocks XSS, SQLi, bots ✅
+    └── ACM    → SSL/HTTPS ✅
+    ↓
+ALB
+    ↓
+Pods ✅
