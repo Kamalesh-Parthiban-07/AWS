@@ -233,7 +233,18 @@ SYN Flood       → Flood TCP connections ❌
 UDP Flood       → Flood UDP packets ❌
 Port Scan       → Scan all ports ❌
 ------------------------------------------------
-To integrate AWS Shield with Amazon CloudFront
+To integrate AWS Shield with Amazon CloudFront --     Attach WAF to CloudFront and Attach Shield Advanced to CloudFront ✅ and Link WAF to Shield Advanced ✅
+
+Attach WAF to CloudFront:
+
+CloudFront Console
+→ Your distribution (NLB origin)
+→ Edit
+→ Security tab
+→ Web Application Firewall (WAF)
+→ Enable security protections
+→ Select your Web ACL: my-cloudfront-waf
+→ Save changes ✅
 ================================================
   Shield Advanced — Manual setup:
 ================================================
