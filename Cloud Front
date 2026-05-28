@@ -6,17 +6,59 @@ Amazon CloudFront is a CDN (Content Delivery Network) service that delivers cont
 In EKS?
 
 When you create CloudFront distribution you give the ALB DNS as the origin:
+------
+For ALB
+----
+Step 1 — Create ALB first
+→ get ALB DNS name
+   my-alb-123.us-east-2.elb.amazonaws.com
 
+Step 2 — Create CloudFront distribution
+→ origin = ALB DNS name
+→ get CloudFront domain
+   d1234abcd.cloudfront.net
+
+Step 3 — Create Route 53 record
+→ myapp.com → point to CloudFront domain ✅
+-----------
+For NLB Exact same order:
+-------
+Step 1 — Create NLB first
+→ get NLB DNS name
+   my-nlb-123.us-east-2.elb.amazonaws.com
+
+Step 2 — Create CloudFront distribution
+→ origin = NLB DNS name
+
+Step 3 — Create Route 53 record
+→ myapp.com → point to CloudFront ✅
+---------------------
 Route 53
-  myapp.com → CloudFront domain
-                    ↓
-              CloudFront
-                    ↓
-              Origin: ALB DNS
-                    ↓
-                   ALB
-                    ↓
-                EKS Pods
+
+User types: myapp.com
+      ↓
+Route 53 (DNS)
+→ myapp.com points to CloudFront domain
+      ↓
+CloudFront
+→ origin: ALB DNS name
+      ↓
+ALB
+      ↓
+Pods
+-----------------------------
+How to set up Route 53 → CloudFront:
+
+Route 53 Console
+→ Hosted Zone
+→ Create Record
+→ Record name: myapp.com
+→ Record type: A
+→ Alias: YES ✅
+→ Route traffic to: CloudFront distribution
+→ Select your distribution
+→ Create ✅
+---------------------------------------------------------
 
 Why use CloudFront in front of ALB:
 
