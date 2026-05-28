@@ -233,9 +233,9 @@ SYN Flood       → Flood TCP connections ❌
 UDP Flood       → Flood UDP packets ❌
 Port Scan       → Scan all ports ❌
 ------------------------------------------------
-
+To integrate AWS Shield with Amazon CloudFront
 ================================================
-  AWS SHIELD — SETUP NOTES
+  Shield Advanced — Manual setup:
 ================================================
 
 [ SHIELD STANDARD ]
@@ -260,7 +260,7 @@ Port Scan       → Scan all ports ❌
   Step 3 — Add Protected Resources
     Shield Console → Protected Resources → Add Resources
     Resources to add:
-      [ ] CloudFront distribution
+      [ ] CloudFront distribution      -- Select your CloudFront distribution (To integrate AWS Shield with Amazon CloudFront)
       [ ] Route 53 hosted zone
       [ ] ALB / NLB
       [ ] Elastic IP (EC2)
