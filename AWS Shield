@@ -233,7 +233,7 @@ SYN Flood       → Flood TCP connections ❌
 UDP Flood       → Flood UDP packets ❌
 Port Scan       → Scan all ports ❌
 ------------------------------------------------
-To integrate AWS Shield with Amazon CloudFront --     Attach WAF to CloudFront and Attach Shield Advanced to CloudFront ✅ and Link WAF to Shield Advanced ✅
+To integrate AWS Shield with Amazon CloudFront and link with WAF -- Attach WAF to CloudFront and integrate Shield Advanced to CloudFront ✅ and Link WAF to Shield Advanced ✅
 
 Attach WAF to CloudFront:
 
