@@ -130,10 +130,45 @@ Why it happens:
   New container needed on first call
 
 How to fix:
-  Provisioned concurrency → pre-warm containers
-  Ping every 5 mins → keep warm
-  Smaller package size → faster startup
-  Python/Node → faster than Java
+
+1. Provisioned Concurrency (best fix) Keeps N containers pre-warmed and ready — zero cold start latency.
+
+Step 1 — Publish a Version (required)
+Provisioned Concurrency needs a version or alias — it can't be set on $LATEST.
+Go to your Lambda → Actions → Publish new version
+
+Step 2 — Add Provisioned Concurrency
+
+1. Go to AWS Console → Lambda → select your function
+2. Click the Configuration tab
+3. Left sidebar → Concurrency
+4. Scroll down to Provisioned concurrency
+5. Click Add configuration
+6. Choose:
+-> Version or Alias → select your published version (e.g. 1) or an alias
+-> Provisioned concurrency → enter a number (e.g. 5)
+7. Click Save
+
+⚠️ Important things to know:
+
+Costs money even when idle — you're paying for pre-warmed containers 24/7, unlike regular Lambda (pay per invocation)
+
+2. Scheduled Warmer (poor man's approach)
+
+Use EventBridge cron to ping your Lambda every 5 mins:
+
+rate(5 minutes) → Lambda (ping event)
+
+Inside handler:
+
+def handler(event, context):
+    if event.get("source") == "warmer":
+        return {"status": "warm"}
+    # real logic here
+
+⚠️ This only keeps 1 container warm. Not reliable for burst traffic.
+---------------------------------------------------------------------------------------------
+
 
 2. Lambda vs EC2
 
