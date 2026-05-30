@@ -256,6 +256,25 @@ Request BLOCKED ✅
 Returns 403 Forbidden ✅
 Never reaches your app ✅
 Never reaches database ✅
+
+---------------------
+ways to protect from SQL Injection:
+
+1. Parameterized Queries
+
+# ❌ VULNERABLE - user input directly in query
+query = "SELECT * FROM users WHERE username='" + user_input + "'"
+
+# ✅ SAFE - input treated as pure data, never as SQL
+cursor.execute("SELECT * FROM users WHERE username = %s", (user_input,))
+
+Even if someone enters ' OR 1=1 --, it's treated as a literal string, not SQL code.
+
+2. Input Validation
+3. Least Privilege
+4. WAF
+
+
 ----------------------------------
 
 🔵 WAF in EKS / DevOps
