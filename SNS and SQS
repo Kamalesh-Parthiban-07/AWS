@@ -32,6 +32,8 @@ Step 5 — Add Notifications (optional)
 
 In SNS
 
+a single topic can have multiple subscriptions.
+
 Step 1 — Create Topic
   my-alerts-topic ✅
 
