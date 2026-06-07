@@ -33,20 +33,17 @@ Step 2 — Create CloudFront distribution
 Step 3 — Create Route 53 record
 → myapp.com → point to CloudFront ✅
 ---------------------
-Route 53
+Step 2
 
-User types: myapp.com
-      ↓
-Route 53 (DNS)
-→ myapp.com points to CloudFront domain
-      ↓
-CloudFront
-→ origin: ALB DNS name
-      ↓
-ALB
-      ↓
-Pods
------------------------------
+CloudFront → Create Distribution for NLB
+
+→ Origin domain: my-nlb-123.us-east-2.elb.amazonaws.com
+→ Protocol: HTTPS only
+→ Create Distribution ✅
+→ You get: xxxxxxxx.cloudfront.net ← use this in Route53
+---------------------------------------------------
+Step 3
+
 How to set up Route 53 → CloudFront:
 
 Route 53 Console
@@ -59,6 +56,22 @@ Route 53 Console
 → Select your distribution
 → Create ✅
 ---------------------------------------------------------
+
+Route 53
+
+User types: myapp.com
+      ↓
+Route 53 (DNS)
+→ myapp.com points to CloudFront domain
+      ↓
+CloudFront
+→ origin: NLB DNS name
+      ↓
+Nginx ingress controller
+      ↓
+Pods
+-----------------------------
+
 
 Why use CloudFront in front of ALB:
 
