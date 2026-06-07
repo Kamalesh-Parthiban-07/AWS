@@ -37,6 +37,17 @@ Step 2
 
 CloudFront → Create Distribution for NLB
 
+Origin Type          Common Use Case
+--------------------------------------------------------
+Amazon S3            Static websites, images, files
+ELB                  Web applications on AWS
+API Gateway          REST/HTTP APIs
+MediaPackage         Video streaming
+VPC Origin           Private applications in VPC
+Other                External/custom web servers
+
+select ELB - ALB/NLB (NLB)
+
 → Origin domain: my-nlb-123.us-east-2.elb.amazonaws.com
 → Protocol: HTTPS only
 → Create Distribution ✅
