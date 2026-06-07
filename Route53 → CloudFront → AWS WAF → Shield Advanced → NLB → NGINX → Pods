@@ -1,0 +1,114 @@
+Route53 → CloudFront → AWS WAF → Shield Advanced → NLB → NGINX → Pods
+---------------------------------------------------------------------
+CloudFront
+
+CloudFront → Create Distribution for NLB
+
+Origin Type          Common Use Case
+--------------------------------------------------------
+Amazon S3            Static websites, images, files
+ELB                  Web applications on AWS
+API Gateway          REST/HTTP APIs
+MediaPackage         Video streaming
+VPC Origin           Private applications in VPC
+Other                External/custom web servers
+
+select ELB - ALB/NLB (NLB)
+
+→ Origin domain: my-nlb-123.us-east-2.elb.amazonaws.com
+→ Protocol: HTTPS only
+→ Create Distribution ✅
+→ You get: xxxxxxxx.cloudfront.net ← use this in Route53
+----------------------------------------------------------------------------------------------------------------------------------------------
+CloudFront+WAF
+
+  WAF Console → Web ACLs → Create Web ACL
+
+Step 1 — Create WAF Web ACL:
+
+AWS Console
+→ WAF & Shield
+→ Web ACLs
+→ Create Web ACL
+→ Name: my-waf
+→ Region:       your region (or CloudFront global)
+→ Associated resources:
+    → Add your ALB / CloudFront / API Gateway here
+→ Resource: CloudFront
+→ Add rules:
+   ✅ AWSManagedRulesCommonRuleSet
+   ✅ AWSManagedRulesKnownBadInputsRuleSet
+→ Create ✅
+
+Step 2 — Attach WAF to CloudFront:
+
+CloudFront Console
+→ Your distribution (NLB origin)
+→ Edit
+→ Security tab
+→ Web Application Firewall (WAF)
+→ Enable security protections
+→ Select your Web ACL: my-cloudfront-waf
+→ Save changes ✅
+
+Step 3 — Link WAF to Shield Advanced:
+
+Shield Console
+→ Protected Resources
+→ Select your CloudFront
+→ Associate WAF Web ACL
+→ Select your WAF ✅
+→ Save ✅
+
+Without linking:
+Shield blocks DDoS ──────────────────────→ independently
+WAF blocks SQLi/XSS ─────────────────────→ independently
+
+With linking:
+Shield detects DDoS → automatically adds WAF rules → blocks faster ✅
+
+Linking WAF to Shield Advanced is not mandatory since both work independently — but recommended for payment companies 
+because it enables Shield to automatically create WAF rules during DDoS attacks and allows Shield Response Team to manage WAF rules for faster mitigation. ✅
+---------------------------------------------------------------------------------------------------------
+CloudFront + Advance shield
+
+[ SHIELD ADVANCED — SETUP STEPS ]
+
+  Step 1 — Open Shield Console
+    AWS Console → search "Shield" → AWS Shield
+
+  Step 2 — Subscribe
+    Shield Console → Getting Started
+    → Subscribe to Shield Advanced
+    NOTE: $3,000/month, 12-month commitment
+    NEED: Business or Enterprise Support plan
+
+  Step 3 — Add Protected Resources
+    Shield Console → Protected Resources → Add Resources
+    Resources to add:
+      [ ] CloudFront distribution      -- Select your CloudFront distribution (Attach Shield Advanced to CloudFront ✅)
+      [ ] Route 53 hosted zone
+      [ ] ALB / NLB
+      [ ] Elastic IP (EC2)
+      [ ] Global Accelerator
+
+  Step 4 — Associate WAF Web ACL (for Layer 7)     -- Link WAF to Shield Advanced ✅  -- both same CloudFront+WAF
+    Shield Console → Protected Resources
+    → Select resource → Associate WAF Web ACL
+    NOTE: Create WAF Web ACL first if you don't have one
+          AWS WAF → Create Web ACL → then come back here
+
+  Step 5 — Health-based Detection (recommended)
+    Shield Console → Protected Resources
+    → Select resource → Associate Health Check
+    NOTE: Create Route 53 health check first
+
+  Step 6 — Enable DRT Proactive Engagement
+    Shield Console → Overview
+    → Edit Proactive Engagement → Enable
+    Add emergency contact: email + phone
+    NOTE: Requires Business or Enterprise Support
+
+  Step 7 — Monitor
+    Shield Console → Events
+    → View by resource or time range
