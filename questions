@@ -13,6 +13,17 @@ ELB Multi-AZ = Traffic routing + Health check based HA
 • If entire AZ fails → stops sending traffic to that AZ
 • Routes only to healthy targets across remaining AZs
 
+ELB Multi-AZ does 3 things:
+
+Function                     Description
+---------------------------------------------------------------
+1. Health Check              Continuously checks targets in each AZ
+
+2. Traffic Distribution      Distributes incoming requests across
+                              targets in multiple AZs
+
+3. Fault Isolation           Stops routing to entire AZ if it fails
+
 ------------------------------------------
 
 ASG Multi-AZ = Capacity HA
