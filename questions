@@ -32,6 +32,25 @@ ASG Multi-AZ = Capacity HA
 • Replaces unhealthy/terminated instances
 • Rebalances capacity if AZ count changes
 
+ASG has 2 types of Health Checks:
+
+Type                 Default?              How it works
+---------------------------------------------------------------------------
+EC2 Health Check     ✅ Yes (default)      Checks if instance is running at hypervisor level
+
+ELB Health Check     ❌ No (must enable)   Checks if instance is healthy at application level
+
+
+Difference:
+
+EC2 Health Check:
+Instance running? → Healthy
+(doesn't care if app is crashing inside)
+
+ELB Health Check:
+HTTP 200 response? → Healthy
+(checks actual app is responding)
+
 Multi-AZ in both ASG and ELB together ensures High Availability — ELB stops routing traffic to a failed AZ while ASG automatically replaces the lost instances in healthy AZs. 
 This gives zero-downtime fault tolerance without any manual intervention.
 -----------------------------------------------------------------------------------------------------------------------------------------------------
