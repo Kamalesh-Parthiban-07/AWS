@@ -256,6 +256,10 @@ Methods to create:
 
 can we change instance type without down time?
 
+For Instance refresh in ASG create before destroy or etc..,
+
+https://www.youtube.com/watch?v=T9_Be_TVqGk
+
 Single EC2:
   ❌ needs downtime
   stop → change → start
