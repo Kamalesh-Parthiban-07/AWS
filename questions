@@ -258,6 +258,16 @@ can we change instance type without down time?
 
 For Instance refresh in ASG create before destroy or etc..,
 
+Instance Refresh is an ASG feature that gradually replaces all existing instances with new ones when you update the Launch Template — like a rolling update. 
+It respects minimum healthy percentage so your app stays available during the refresh.
+
+ AWS Console:
+
+EC2 → Auto Scaling Groups → Select ASG
+→ Instance Refresh tab
+→ Start Instance Refresh
+→ Set Minimum Healthy % → Start
+
 https://www.youtube.com/watch?v=T9_Be_TVqGk
 
 Single EC2:
