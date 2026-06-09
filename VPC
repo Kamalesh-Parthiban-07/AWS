@@ -166,6 +166,8 @@ Isolated Subnet (Tier 3)
 ---------------------------
 NACL
 ----
+Subnet level stateless firewall that controls inbound and outbound traffic using allow/deny rules evaluated in order.
+
 How are NACL rules evaluated?
 
 Default NACL vs Custom NACL
