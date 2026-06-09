@@ -98,6 +98,10 @@ Load Balancer in public subnet
 App servers in private subnet 
 Database in private subnet
 
+Public Subnet  → ALB, NAT Gateway, Bastion
+Private Subnet → ASG (App servers, EKS nodes)
+Private Subnet → RDS, ElastiCache (DB layer)
+
                     🌐 Internet
                          │
                   [ Internet Gateway ]
