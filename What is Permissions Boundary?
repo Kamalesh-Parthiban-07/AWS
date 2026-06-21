@@ -1,0 +1,207 @@
+What is Permissions Boundary?
+
+Permissions Boundary is an IAM policy that sets the maximum permissions an IAM user or role can have. 
+Even if their IAM policy grants full admin, the boundary restricts them to only what the boundary allows — preventing privilege escalation.
+
+It is a policy that sets the maximum permissions an IAM user or role can have — even if their IAM policy allows more.
+
+Simple Analogy
+
+IAM Policy  =  What you ARE allowed to do
+Permissions Boundary = Maximum LIMIT you cannot exceed
+
+Example:
+  IAM Policy says      → can do S3, EC2, RDS, Lambda
+  Permissions Boundary → max allowed is S3 and EC2 only
+
+  Final Permission     → only S3 and EC2 ✅
+                         RDS and Lambda blocked ❌
+
+---------------------
+How It Works
+
+IAM Policy        ∩        Permissions Boundary
+(what is allowed)     (what is the max limit)
+        │
+        ▼
+   Final Permission
+   (intersection of both)
+
+----
+Permissions Boundary vs SCP
+
+SCP                          Permissions Boundary
+────────────────────         ────────────────────
+Applies to AWS Account       Applies to IAM User/Role
+Set by Management Account    Set by Admin in same account
+Controls entire account      Controls individual user/role
+Even root cannot bypass      Root user not affected
+AWS Organizations needed     No Organizations needed
+
+---------------------
+Real Example
+Without Permissions Boundary
+
+Developer IAM Policy → Full Admin Access
+                     → can create any resource
+                     → can escalate own privileges ❌ DANGEROUS
+----------------
+With Permissions Boundary
+
+Admin sets Permissions Boundary on Developer:
+  → Max allowed: S3 + EC2 only
+
+Developer IAM Policy says: Full Admin
+Permissions Boundary says: S3 + EC2 only
+
+Final Permission: S3 + EC2 only ✅
+Developer CANNOT escalate privileges
+-------------
+Create Permissions Boundary
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:*",
+        "ec2:*"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+---------------
+All 3 Policies Together
+
+SCP                          → Account level limit
+    │
+    ▼
+Permissions Boundary         → User/Role level limit
+    │
+    ▼
+IAM Policy                   → Actual permissions
+    │
+    ▼
+Final Permission = intersection of all 3
+-----------------
+Key Points
+
+✅ Only applies to IAM users and roles
+✅ Does NOT grant permissions — only limits
+✅ Admin sets it — user cannot remove it
+✅ Prevents privilege escalation
+✅ No AWS Organizations needed
+--------------
+
+How to Access Permissions Boundary
+
+ AWS Console (Easiest)
+
+# For IAM User:
+1. Login → AWS Console
+2. Search "IAM"
+3. Left menu → "Users"
+4. Click on username
+5. Click "Permissions" tab
+6. Scroll down → "Permissions Boundary"
+7. Click "Set Boundary"
+8. Select policy → Apply
+
+# For IAM Role:
+1. IAM → Roles
+2. Click on role name
+3. "Permissions" tab
+4. "Permissions Boundary" → Set
+
+Simple Rule
+
+Create    →  IAM → Policies → Create Policy
+Attach    →  IAM → Users/Roles → Permissions Boundary
+Remove    →  IAM → Users/Roles → Remove Boundary
+Verify    →  aws iam get-user / get-role
+------------------
+What are the use cases of Permissions Boundary?
+
+Permissions Boundary is mainly used to prevent privilege escalation, enable safe developer self-service, 
+and limit blast radius during security incidents. It ensures that even if an IAM policy grants broad access, 
+users and roles stay within the defined maximum boundary
+
+1. Prevent Privilege Escalation (Most Common)
+
+Problem:
+  Developer has Admin access
+  Developer creates a new IAM user
+  Gives that user Full Admin
+  → Developer escalated privileges ❌
+
+Solution with Boundary:
+  Set boundary on Developer
+  → Developer CANNOT create user
+    with more permissions than boundary allows
+  → Privilege escalation blocked ✅
+
+2. Safe Developer Self-Service
+
+Problem:
+  Developers need to create IAM roles
+  for their Lambda/EC2 applications
+  But giving them IAM full access is risky
+
+Solution:
+  Set boundary → Developers can create roles
+  BUT created roles cannot exceed boundary
+  → Developers get freedom ✅
+  → Security maintained ✅
+
+3. Contractor / Third Party Access
+
+Problem:
+  You hire a contractor to work on S3
+  You don't want them touching EC2, RDS
+  But their company gives them broad access
+
+Solution:
+  Set boundary on contractor's IAM role
+  → Max allowed: S3 only
+  → Cannot touch EC2, RDS, Lambda ✅
+
+4. Multi Team Environment
+
+DevOps Team    → Boundary allows EC2, EKS, S3
+Dev Team       → Boundary allows Lambda, S3, DynamoDB
+Security Team  → Boundary allows IAM, CloudTrail, Config
+Data Team      → Boundary allows S3, Glue, Athena, Redshift
+
+Each team stays in their lane ✅
+
+5. CI/CD Pipeline Roles
+
+Problem:
+  Jenkins/GitHub Actions role needs
+  broad permissions to deploy
+  But you don't want it touching IAM
+
+Solution:
+  Set boundary on pipeline role
+  → Can deploy EC2, EKS, Lambda
+  → Cannot create/modify IAM ✅
+  → Pipeline compromise = limited blast radius
+
+Your Real World Context
+
+Your EKS setup at GlobalPayments:
+
+Jenkins role → Boundary set
+  ✅ Can deploy to EKS
+  ✅ Can push to ECR
+  ✅ Can read S3
+  ❌ Cannot modify IAM
+  ❌ Cannot touch RDS
+  ❌ Cannot access billing
+
+→ Even if Jenkins is compromised
+  attacker cannot escalate privileges
+
+--------------------------------------------
