@@ -1,0 +1,105 @@
+What is Service Control Policy (SCP)?
+
+Service Control Policy (SCP)
+It is a policy that controls what actions are allowed or denied across all AWS accounts in an Organization.
+
+Simple Analogy
+
+Normal IAM Policy:
+Controls what ONE user/role can do
+in ONE account
+
+SCP:
+Controls what EVERYONE can do
+across ALL accounts
+Even the account's root user cannot bypass it
+→ like a company-wide rule
+   that even managers must follow
+
+-------------
+How SCP Works
+
+Management Account
+        │
+        ▼
+   Applies SCP
+        │
+        ▼
+┌───────────────────────────────┐
+│  OU Production                │
+│    ├── Prod Account           │
+│    │     └── All users/roles  │  ← SCP applies to everyone
+│    └── DR Account             │
+│          └── All users/roles  │  ← SCP applies here too
+└───────────────────────────────┘
+
+Even if IAM policy ALLOWS something,
+SCP can still DENY it ✅
+
+-------
+
+SCP vs IAM Policy
+
+IAM Policy  +  SCP  =  Final Permission
+─────────────────────────────────────────
+ALLOW       +  ALLOW =  ✅ Allowed
+ALLOW       +  DENY  =  ❌ Denied   ← SCP wins
+DENY        +  ALLOW =  ❌ Denied   ← IAM wins
+DENY        +  DENY  =  ❌ Denied
+
+Example 3 — Block Public S3
+
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Effect": "Deny",
+    "Action": "s3:PutBucketPublicAccessBlock",
+    "Resource": "*"
+  }]
+}
+→ Nobody can make S3 bucket public
+
+Example 4 — Prevent Deleting CloudTrail
+
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Effect": "Deny",
+    "Action": [
+      "cloudtrail:DeleteTrail",
+      "cloudtrail:StopLogging"
+    ],
+    "Resource": "*"
+  }]
+}
+→ Nobody can disable audit logging
+
+Where SCP is Applied
+
+Root → applies to ALL accounts
+  │
+  OU → applies to accounts in that OU
+    │
+    Account → applies to that account only
+
+---
+Key Points
+
+✅ SCP does NOT grant permissions
+✅ SCP only RESTRICTS permissions
+✅ Even root user cannot bypass SCP
+✅ Management account is NOT affected by SCP
+✅ Must have Organizations enabled
+
+------------------
+How to Access SCP
+
+AWS Console (Easiest)
+
+1. Login → Management Account
+2. Search "AWS Organizations"
+3. Left menu → "Policies"
+4. Click → "Service Control Policies"
+5. Click "Enable SCPs" (first time)
+6. Create / Attach / Detach SCPs
+--------------------------------------
