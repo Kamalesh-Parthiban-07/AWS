@@ -1,0 +1,85 @@
+What is AWS Organizations?
+
+AWS Organizations is a service to centrally manage multiple AWS accounts under one root. It provides consolidated billing, 
+SCPs to enforce policies across all accounts, and OUs to group accounts by environment or department.
+
+It is a service that helps you manage multiple AWS accounts centrally from one place.
+
+Simple Analogy
+
+Without AWS Organizations:
+Each AWS account is separate
+Different billing, different policies
+You login to each account separately
+→ hard to manage
+
+With AWS Organizations:
+All accounts under ONE umbrella
+Single billing, central policies
+Manage all from one place
+→ like a company with departments
+
+Structure
+
+Root (Top Level)
+      │
+      ├── Management Account (Master)
+      │         └── pays all bills
+      │
+      ├── OU (Organizational Unit)
+      │     ├── Dev Account
+      │     └── Test Account
+      │
+      ├── OU Production
+      │     ├── Prod Account
+      │     └── DR Account
+      │
+      └── OU Security
+            ├── Log Archive Account
+            └── Audit Account
+
+| Feature              | What it does                             |
+| -------------------- | ---------------------------------------- |
+| Consolidated Billing | Single bill for all accounts             |
+| SCPs                 | Apply policies across all accounts       |
+| OUs                  | Group accounts by department/environment |
+| Account Factory      | Create new accounts automatically        |
+
+
+SCP — Service Control Policy
+
+Management Account applies SCP
+          │
+          ▼
+    All child accounts
+    automatically follow
+
+Example SCP:
+"No one can disable CloudTrail"
+→ applies to Dev, Staging, Prod
+→ even account root user cannot bypass
+---------
+Consolidated Billing Benefit
+
+Without Organizations:
+  Dev Account     → separate bill
+  Prod Account    → separate bill
+  Security Account → separate bill
+
+With Organizations:
+  All accounts → ONE bill
+                + volume discounts
+                + easy cost tracking
+---------
+Control Tower vs Organizations
+
+AWS Organizations    =  Foundation (the structure)
+AWS Control Tower    =  Built on top of Organizations
+                        (adds guardrails, automation,
+                         dashboard, account factory)
+
+Control Tower needs Organizations to work
+Organizations can work without Control Tower
+---
+
+
