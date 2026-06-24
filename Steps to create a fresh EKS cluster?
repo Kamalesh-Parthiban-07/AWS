@@ -1,0 +1,66 @@
+AWS Console (Step by Step)
+
+Step 1 — Create IAM Role for EKS Cluster
+
+1. Go to IAM → Roles → Create Role
+2. Select EKS → EKS Cluster
+3. Attach policy: AmazonEKSClusterPolicy
+4. Name it: eks-cluster-role
+
+
+Step 2 — Create IAM Role for Worker Nodes
+
+1. Go to IAM → Roles → Create Role
+2. Select EC2
+3. Attach these policies:
+
+   • AmazonEKSWorkerNodePolicy
+   • AmazonEKS_CNI_Policy
+   • AmazonEC2ContainerRegistryReadOnly
+
+4. Name it: eks-node-role
+
+Step 3 — Create VPC & Networking
+
+Or manually create:
+
+• VPC with CIDR 10.0.0.0/16
+• 2 Public Subnets
+• 2 Private Subnets
+• Internet Gateway
+• NAT Gateway
+• Route Tables
+
+
+Step 4 — Create EKS Cluster
+
+1. Go to EKS → Clusters → Create Cluster
+2. Enter Cluster Name (e.g., my-eks-cluster)
+3. Select Kubernetes version (e.g., 1.29)
+4. Select Cluster IAM Role → eks-cluster-role
+5. Select VPC and Subnets
+6. Set Security Groups
+7. Set Cluster Endpoint Access:
+   
+   • Public (default)
+   • Private
+   • Public & Private
+
+8. Configure Logging (optional)
+9. Click Create (takes 10–15 mins)
+
+Step 5 — Add Node Group
+
+1. Go to your cluster → Compute → Add Node Group
+2. Enter Node Group Name
+3. Select Node IAM Role → eks-node-role
+4. Choose AMI type → Amazon Linux 2
+5. Set Instance type (e.g., t3.medium)
+6. Set Scaling config:
+
+   • Min: 1
+   • Max: 4
+   • Desired: 2
+
+7. Select Subnets (private subnets recommended)
+8. Click Create
