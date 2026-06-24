@@ -720,3 +720,111 @@ Choose the VPC to associate it with (region + VPC ID)
 Click Create Hosted Zone
 Add DNS records (A, CNAME, etc.) as needed
 ------------------------------------------------
+What is Route53 Private Hosted Zone?
+
+A Private Hosted Zone is a container that holds DNS records for a domain that is only resolvable within specified AWS VPCs — it's invisible to the public internet.
+
+┌─────────────────────────────────────────────────┐
+│                    AWS VPC                       │
+│                                                  │
+│  EC2 Instance                                    │
+│  queries: db.internal.mycompany.com              │
+│        │                                         │
+│        ▼                                         │
+│  Route 53 Resolver (169.254.169.253)             │
+│        │                                         │
+│        ▼                                         │
+│  Private Hosted Zone: internal.mycompany.com     │
+│        │                                         │
+│        ▼                                         │
+│  Returns: 10.0.1.45 (private IP)                 │
+│                                                  │
+└─────────────────────────────────────────────────┘
+        ✗ Not accessible from the public internet
+---------------------------------------
+Types of VPC Endpoints?
+
+Side-by-Side Comparison
+
++----------------------+--------------------------+-----------------------+---------------------------+
+| Feature              | Interface Endpoint       | Gateway Endpoint      | GWLB Endpoint             |
++----------------------+--------------------------+-----------------------+---------------------------+
+| Mechanism            | ENI (Private IP)         | Route Table Entry     | GWLB + Appliances         |
+| Supported Services   | 100+ AWS services        | S3 & DynamoDB only    | Third-party appliances    |
+| Security Groups      | Yes                      | No                    | No                        |
+| Endpoint Policy      | Yes                      | Yes                   | Yes                       |
+| Private DNS          | Yes                      | No                    | No                        |
+| VPN/Direct Connect   | Yes                      | No                    | Yes                       |
+| Cost                 | Hourly + Data            | Free                  | Hourly + Data             |
+| Use Case             | Private AWS API access   | S3/DynamoDB access    | Traffic inspection        |
++----------------------+--------------------------+-----------------------+---------------------------+
+
+When to Use Which?
+
+Need to access S3 or DynamoDB privately?
+        └──► Gateway Endpoint (free, simple)
+
+Need to access other AWS services privately?
+        └──► Interface Endpoint (PrivateLink)
+
+Need to inspect/filter traffic with a firewall?
+        └──► Gateway Load Balancer Endpoint
+---------
+
+1. 🔵 Interface Endpoint
+Via AWS Console
+
+Go to VPC → Endpoints → Create Endpoint
+Set Name tag (e.g., my-ssm-endpoint)
+Select Service category → AWS Services
+Search and select the service (e.g., com.amazonaws.us-east-1.ssm)
+Select your VPC
+Select Subnets (one per AZ recommended)
+Enable Private DNS (recommended)
+Assign Security Groups
+Set Endpoint Policy (Full access or custom)
+Click Create Endpoint
+
+2. 🟢 Gateway Endpoint
+Via AWS Console
+
+Go to VPC → Endpoints → Create Endpoint
+Set Name tag (e.g., my-s3-gateway)
+Select Service category → AWS Services
+Search and select S3 or DynamoDB
+
+Choose type Gateway (not Interface)
+
+
+Select your VPC
+Select Route Tables to associate
+Set Endpoint Policy (Full access or custom)
+Click Create Endpoint
+
+3. 🟠 Gateway Load Balancer Endpoint
+Via AWS Console
+
+First — Create Gateway Load Balancer (in security VPC):
+
+Go to EC2 → Load Balancers → Create Load Balancer
+Choose Gateway Load Balancer
+Set name, VPC, subnets
+Register virtual appliance instances as targets
+
+
+Create Endpoint Service:
+
+Go to VPC → Endpoint Services → Create
+Select your Gateway Load Balancer
+Enable/disable acceptance required
+Note the Service Name
+
+
+Create GWLB Endpoint:
+
+Go to VPC → Endpoints → Create Endpoint
+Select Other endpoint services
+Enter the Service Name from step 2
+Select VPC and Subnet
+Click Create Endpoint
+-------------------------------------------
