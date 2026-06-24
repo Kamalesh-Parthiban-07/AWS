@@ -670,6 +670,40 @@ Expiration      → when it expires
                   default 1 hour
                   max 12 hours
 ------------------------------------------------------------------------------
+What happens when an EC2 instance in an Auto Scaling Group becomes unhealthy?
 
+ASG detects the unhealthy instance via EC2 status check or ELB health check, terminates it, and automatically launches a replacement 
+to maintain desired capacity. ELB connection draining ensures in-flight requests complete before termination — for EKS nodes, 
+Karpenter detects the lost node and reschedules pods onto the new replacement node.
 
+What happens step by step
+
+EC2 instance becomes unhealthy
+        │
+        ▼
+Health check detects it
+(EC2 status check OR ELB health check)
+        │
+        ▼
+ASG marks instance as Unhealthy
+        │
+        ▼
+ASG terminates the unhealthy instance
+        │
+        ▼
+ASG launches a new replacement instance
+to maintain desired capacity
+        │
+        ▼
+New instance bootstraps
+(user data script runs)
+        │
+        ▼
+New instance registers to ELB/Target Group
+        │
+        ▼
+ELB health check passes
+        │
+        ▼
+Traffic routes to new instance
 
