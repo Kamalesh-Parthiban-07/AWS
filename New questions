@@ -706,4 +706,17 @@ ELB health check passes
         │
         ▼
 Traffic routes to new instance
+-----------------------------------------------
+How do you create Private DNS in AWS?
 
+
+Option 1: Route 53 Private Hosted Zone (Most Common)
+Via AWS Console:
+
+Go to Route 53 → Hosted Zones → Create Hosted Zone
+Enter your domain name (e.g., internal.mycompany.com)
+Select Private as the type
+Choose the VPC to associate it with (region + VPC ID)
+Click Create Hosted Zone
+Add DNS records (A, CNAME, etc.) as needed
+------------------------------------------------
