@@ -12,6 +12,11 @@ Versioning              Lifecycle rules
 Server access logging   Replication
 Static website hosting
 Encryption
+
+Permissions tab
+──────────────
+ACL
+Bucket Policy
 ----------------------------------------------------------------
 
 is the object that we upload in s3 bucket by default is private?
