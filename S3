@@ -451,7 +451,7 @@ How often do you access the data?
 
 what is lifecycle management rules in s3?
 
-Lifecycle rules are automatic policies you set on an S3 bucket to automatically transition or expire objects based on their age — saving you storage costs without manual work.
+Lifecycle rules are used to automatically transition or expire objects based on their age — saving you storage costs without manual work.
 
 How to Create a Lifecycle Rule
 
