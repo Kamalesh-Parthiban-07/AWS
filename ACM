@@ -58,8 +58,11 @@ ACM Certificate
   ├── CloudFront    ✅ global CDN
   ├── ALB           ✅ load balancer
   ├── API Gateway   ✅ APIs
-  └── NLB           ❌ does not support ACM
-                       (NLB is Layer 4, no SSL)
+  └── NLB           ✅ Network Load Balancer  (TLS listener only)
+
+you can attach TLS on an NLB (Network Load Balancer)
+
+NLB + ACM = Only on TLS listener. TCP and UDP listeners don't support ACM certificate attachment.
 
 Simple summary:
 
