@@ -1,5 +1,11 @@
 What is AWS Control Tower?
 
+Control Tower requires AWS Organizations — it's a hard dependency.
+
+If you try without Organizations:
+
+Control Tower will create an Organization for you during setup if one doesn't exist — but you cannot use Control Tower without Organizations being active.
+
 It is a service that helps you set up and govern multiple AWS accounts in one place automatically.
 
 AWS Control Tower automates the setup of a secure multi-account AWS environment called a Landing Zone. 
