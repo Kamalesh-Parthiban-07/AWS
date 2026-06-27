@@ -1,5 +1,7 @@
 What is AWS Control Tower?
 
+Must use Management/Root account = Organization master account to access AWS Control Tower
+
 Control Tower requires AWS Organizations — it's a hard dependency.
 
 If you try without Organizations:
