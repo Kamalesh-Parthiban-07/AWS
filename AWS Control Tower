@@ -37,6 +37,13 @@ Company has:
   Security Account
   Shared Services Account
 
+Practical flow:
+
+Existing account = Organizations — create/invite all 5 accounts, structure OUs
+Control Tower — enable it on management account, it registers those accounts and applies guardrails
+
+New account = Control Tower Account Factory. It creates the account in Organizations + applies all governance automatically in one step.
+
 Control Tower:
   → Creates all accounts automatically
   → Applies same security policies to all
