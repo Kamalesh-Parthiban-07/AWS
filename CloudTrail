@@ -1,0 +1,62 @@
+CloudTrail?
+
+CloudTrail stores API call logs. That's its primary job.
+
+complete audit history of every API action across your AWS accounts — who did what, when, from where, on which resource.
+
+CloudTrail works at individual account level AND organization level.
+
+What it captures:
+
+Who did it?     → IAM user / role / service
+What did it?    → API action (e.g. ec2:TerminateInstance)
+When?           → Timestamp
+Where from?     → IP address, region
+On what?        → Resource ARN
+Result?         → Success or error
+
+Organization Trail (recommended):
+
+Management Account
+ └── One Org CloudTrail trail
+      ├── Dev Account    ✅ auto covered
+      ├── Staging Account ✅ auto covered
+      ├── Prod Account   ✅ auto covered
+      ├── Security Account ✅ auto covered
+      └── Shared Services ✅ auto covered
+           └── All logs → centralized S3 (Log Archive Account)
+
+What it stores:
+
+Every API call → captured as an Event → stored as JSON log file
+
+Everything in AWS is an API call under the hood:
+
+You click "Launch EC2 instance" in console
+        │
+        ▼
+Console calls → ec2:RunInstances API
+        │
+        ▼
+CloudTrail logs it
+
+Real examples by service:
+
+What you did                     | API call logged
+---------------------------------|------------------------------
+Created S3 bucket                | s3:CreateBucket
+Deleted EC2 instance             | ec2:TerminateInstances
+Changed IAM policy               | iam:PutUserPolicy
+Disabled CloudTrail              | cloudtrail:StopLogging
+Assumed IAM role                 | sts:AssumeRole
+Created EKS cluster              | eks:CreateCluster
+Pushed to ECR                    | ecr:PutImage
+Applied Terraform                | multiple API calls
+
+Where it stores:
+
+CloudTrail
+ ├── S3 Bucket          → long term storage (primary)
+ ├── CloudWatch Logs    → real time search & alerts
+ └── EventBridge        → trigger automated actions
+
