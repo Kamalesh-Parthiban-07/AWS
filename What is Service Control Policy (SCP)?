@@ -1,7 +1,12 @@
 What is Service Control Policy (SCP)?
 
 Service Control Policy (SCP)
-It is a policy that controls what actions are allowed or denied across all AWS accounts in an Organization.
+
+A policy that defines the maximum permissions any account/user/role inside that OU can have — even if their IAM policy allows it.
+
+SCP never grants permissions — it only restricts what IAM can do.
+
+SCP is a boundary, not a grant:
 
 Simple Analogy
 
