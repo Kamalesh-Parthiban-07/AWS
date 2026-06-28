@@ -601,3 +601,131 @@ VPC C Route Table:
 
   Destination : 10.1.0.0/16 ← VPC B CIDR
   Target      : tgw-xxxxxxxx ✅
+-------------------------------------------
+Types of VPC Endpoints?
+
+Two types — Interface Endpoint and Gateway Endpoint.
+
+1. Gateway Endpoint:
+
+VPC
+ └── Route Table → Gateway Endpoint → S3 / DynamoDB
+
+Detail
+--------------------------------------------------------
+Services supported : S3 and DynamoDB only
+How it works       : Added to route table
+Cost               : ✅ Free
+Private IP         : ❌ No — uses route table entry
+
+2. Interface Endpoint (AWS PrivateLink):
+
+VPC
+ └── Subnet → ENI (private IP) → Interface Endpoint → AWS Service
+
+| Detail               | Description                                              |
+|----------------------|----------------------------------------------------------|
+| Services supported   | Almost all AWS services (ECR, SSM, CloudWatch, STS etc.) |
+| How it works         | Creates ENI in your subnet                               |
+| Cost                 | ❌ Paid — $0.01/hr per AZ                                |
+| Private IP           | ✅ Yes — gets private IP in your subnet                  |
+
+Comparison:
+
+| Feature            | Gateway Endpoint       | Interface Endpoint     |
+|--------------------|------------------------|------------------------|
+| Services           | S3, DynamoDB only      | 100+ AWS services      |
+| Cost               | Free                   | Paid                   |
+| Route table change | ✅ Yes                 | ❌ No                  |
+| ENI created        | ❌ No                  | ✅ Yes                 |
+| DNS resolution     | ❌ No                  | ✅ Yes                 |
+
+Your EKS context:
+
+EKS nodes in private subnet:
+ ├── S3 access        → Gateway Endpoint (free) ✅
+ ├── DynamoDB access  → Gateway Endpoint (free) ✅
+ ├── ECR pull         → Interface Endpoint (paid) ✅
+ ├── CloudWatch logs  → Interface Endpoint (paid) ✅
+ └── SSM access       → Interface Endpoint (paid) ✅
+
+One-liner: 
+Gateway Endpoint = free, only S3/DynamoDB, uses route table. 
+Interface Endpoint = paid, supports 100+ AWS services, creates ENI with private IP in your subnet.
+
+how to create?
+
+Navigation:
+
+AWS Console
+ └── VPC
+      └── Endpoints
+           └── Create Endpoint
+
+Steps for Gateway Endpoint (S3):
+
+| Step | Action                                                |
+|------|--------------------------------------------------------|
+| 1    | VPC Console → Endpoints → Create Endpoint              |
+| 2    | Service category → AWS Services                        |
+| 3    | Search → com.amazonaws.ap-south-1.s3                   |
+| 4    | Type → Gateway                                         |
+| 5    | Select VPC                                             |
+| 6    | Select Route tables to update                          |
+| 7    | Create                                                 |
+
+Result:
+Route table automatically updated:
+pl-xxxxxxxx (S3) → vpce-xxxxxxxx
+
+Steps for Interface Endpoint (ECR):
+
+| Step | Action                                               |
+|------|-------------------------------------------------------|
+| 1    | VPC Console → Endpoints → Create Endpoint             |
+| 2    | Service category → AWS Services                       |
+| 3    | Search → com.amazonaws.ap-south-1.ecr.dkr             |
+| 4    | Type → Interface                                     |
+| 5    | Select VPC                                            |
+| 6    | Select Subnets (private subnets)                      |
+| 7    | Select Security Group                                 |
+| 8    | Enable Private DNS → ✅ Yes                           |
+| 9    | Create                                                |
+
+Result:
+ENI created in your private subnet
+Private IP assigned → ECR traffic stays private
+
+ENI = Elastic Network Interface — a virtual network card attached to an EC2 instance or service.
+
+Simple analogy:
+
+Physical server → has a physical NIC (network card)
+AWS EC2/Service → has an ENI (virtual network card)
+
+What ENI has:
+
+ENI
+ ├── Private IP address
+ ├── Public IP (optional)
+ ├── MAC address
+ ├── Security Groups
+ └── Source/Dest check flag
+
+Where ENI is used:
+
+| Use case                | How                              |
+|--------------------------|----------------------------------|
+| EC2 instance             | Every EC2 gets one ENI by default |
+| Interface VPC Endpoint   | ENI created in your subnet       |
+| RDS                      | ENI created in your subnet       |
+| Lambda in VPC            | ENI created for Lambda           |
+| EKS nodes                | Each node has ENI                |
+| NLB                      | ENI per AZ                       |
+
+com.amazonaws.ap-south-1.ecr.dkr   → image pull
+com.amazonaws.ap-south-1.ecr.api   → ECR API calls
+
+One-liner: 
+VPC Endpoints created in VPC Console → Endpoints → Create Endpoint — Gateway needs only route table selection, 
+Interface needs subnet + security group + enable private DNS.
