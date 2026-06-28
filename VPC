@@ -774,3 +774,91 @@ Traffic never leaves VPC ✅
 One-liner: 
 Gateway Endpoint needs no subnet — just route table. 
 Interface Endpoint must be placed in private subnet so ENI gets a private IP and traffic never reaches the internet.
+---------------------------
+
+using which service we can connect on prem to aws?
+
+Two services — Site-to-Site VPN or AWS Direct Connect.
+
+On-Premises
+     │
+     ├── Site-to-Site VPN    → encrypted tunnel over internet
+     │        │
+     │    Virtual Private Gateway → VPC
+     │
+     └── Direct Connect      → dedicated private line
+              │
+          Direct Connect Location → VPC
+
+One line each:
+
+| Service          | One-liner                                                   |
+|------------------|-------------------------------------------------------------|
+| Site-to-Site VPN | Encrypted tunnel over public internet — cheap, quick setup  |
+| Direct Connect   | Dedicated private line — fast, consistent, expensive        |
+
+Which to use:
+
+| Scenario                     | Use              |
+|-----------------------------|------------------|
+| Quick setup, low cost       | Site-to-Site VPN |
+| High bandwidth, low latency | Direct Connect   |
+| Production + redundancy     | Both together    |
+
+One-liner: 
+On-prem to AWS = Site-to-Site VPN (internet based, cheap) or 
+Direct Connect (private dedicated line, expensive) — production uses both for redundancy.
+----
+
+Virtual Private Gateway
+
+With VGW (old way):
+
+On-Prem → VPN → VGW → VPC A
+On-Prem → VPN → VGW → VPC B
+On-Prem → VPN → VGW → VPC C
+❌ separate VGW per VPC
+
+With Transit Gateway (new way):
+
+On-Prem → VPN → TGW → VPC A
+                    → VPC B
+                    → VPC C
+✅ one TGW handles all
+
+Transit Gateway replaces VGW; TGW itself acts as the termination point for VPN and Direct Connect, so no VGW needed per VPC.
+
+Comparison:
+
+| Feature         | VGW              | Transit Gateway |
+|-----------------|------------------|-----------------|
+| Attached to     | Single VPC       | Multiple VPCs   |
+| On-prem VPN     | ✅ Yes           | ✅ Yes          |
+| Direct Connect  | ✅ Yes           | ✅ Yes          |
+| Scale           | One VPC only     | 1000s of VPCs   |
+| VGW needed      | ✅ Yes           | ❌ No           |
+
+Comparison:
+
+| Feature             | VGW (Virtual Private Gateway) | TGW (Transit Gateway) |
+|---------------------|-------------------------------|-----------------------|
+| Full name           | Virtual Private Gateway       | Transit Gateway       |
+| Attached to         | Single VPC                    | Multiple VPCs         |
+| VPC limit           | 1                             | 1000s                 |
+| On-prem VPN         | ✅ Yes                        | ✅ Yes                |
+| Direct Connect      | ✅ Yes                        | ✅ Yes                |
+| VPC to VPC routing  | ❌ No                         | ✅ Yes                |
+| Transitive routing  | ❌ No                         | ✅ Yes                |
+| Cost                | Low                           | Higher                |
+| Scale               | Small                         | Enterprise            |
+
+When to use which:
+
+| Scenario                  | Use |
+|---------------------------|-----|
+| Single VPC + on-prem      | VGW |
+| Multiple VPCs + on-prem   | TGW |
+| VPC to VPC routing needed | TGW |
+| Simple small setup        | VGW |
+| Enterprise multi-account  | TGW |
+----------------------------------------------------------
