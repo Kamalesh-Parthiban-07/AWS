@@ -729,3 +729,48 @@ com.amazonaws.ap-south-1.ecr.api   → ECR API calls
 One-liner: 
 VPC Endpoints created in VPC Console → Endpoints → Create Endpoint — Gateway needs only route table selection, 
 Interface needs subnet + security group + enable private DNS.
+
+Which subnet is required for VPC Endpoint?
+
+Gateway Endpoint — no subnet needed:
+
+Gateway Endpoint
+ └── attaches to Route Table only (not subnet)
+      └── any subnet using that route table gets access automatically
+
+| Detail            | Value           |
+|-------------------|-----------------|
+| Subnet required   | ❌ No           |
+| What you select   | Route table     |
+| Works for         | S3, DynamoDB    |
+
+Interface Endpoint — private subnet required:
+
+Interface Endpoint
+ └── ENI created inside → Private Subnet ✅
+      └── private IP assigned from that subnet range
+
+| Detail            | Value                                      |
+|-------------------|--------------------------------------------|
+| Subnet required   | ✅ Yes — private subnet                    |
+| Why private       | Traffic should never go to internet        |
+| What you select   | Private subnet + security group            |
+| Works for         | ECR, CloudWatch, SSM, STS etc.             |
+
+Why not public subnet for Interface Endpoint:
+
+Public subnet → has IGW route → traffic could go internet ❌
+Private subnet → no IGW route → traffic stays inside VPC ✅
+
+Your EKS context:
+
+EKS nodes in private subnet
+        │
+Interface Endpoint ENI also in private subnet
+        │
+EKS node → ENI (same subnet) → AWS Service
+Traffic never leaves VPC ✅
+
+One-liner: 
+Gateway Endpoint needs no subnet — just route table. 
+Interface Endpoint must be placed in private subnet so ENI gets a private IP and traffic never reaches the internet.
