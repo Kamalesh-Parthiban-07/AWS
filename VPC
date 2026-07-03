@@ -429,20 +429,169 @@ VPN Connection 2:
 VPN Connection 3:
   Tunnel 5 → active ✅
   Tunnel 6 → active ✅
+-----
+ECMP (Equal-Cost Multi-Path)
 
-Without ECMP:
+ECMP is used to load balance traffic across multiple
+equal-cost network paths instead of using only one path.
 
-VPN Connection 1:
-  Tunnel 1 → active ✅
-  Tunnel 2 → standby ❌   ← wasted
+──────────────────────────────────────────────────────────
+Without ECMP
 
-VPN Connection 2:
-  Tunnel 3 → active ✅
-  Tunnel 4 → standby ❌   ← wasted
+Tunnel 1  → Active
+Tunnel 2  → Standby (used only if Tunnel 1 fails)
 
-Only 2 tunnels used out of 4 ❌
+Result:
+• Only one tunnel carries traffic.
+• The second tunnel is used only during a failure.
 
+──────────────────────────────────────────────────────────
+With ECMP
+
+Tunnel 1  → Active
+Tunnel 2  → Active
+
+Result:
+• Traffic is distributed across both tunnels.
+• Higher bandwidth utilization.
+• Better resiliency and redundancy.
+
+──────────────────────────────────────────────────────────
+Why use ECMP?
+
+✔ Better bandwidth utilization
+
+✔ Load sharing across multiple VPN tunnels
+
+✔ Improved scalability for high-volume traffic
+
+✔ Higher availability and fault tolerance
+
+──────────────────────────────────────────────────────────
+Example
+
+Without ECMP
+
+           Tunnel 1 (Active)
+On-Prem ─────────────────────────► AWS
+
+           Tunnel 2 (Standby)
+On-Prem ─────────────────────────► AWS
+
+Traffic uses only Tunnel 1.
+Tunnel 2 is used only if Tunnel 1 fails.
+
+──────────────────────────────────────────────────────────
+With ECMP
+
+           Tunnel 1 (Active)
+On-Prem ─────────────────────────► AWS
+                 ▲
+                 │
+Traffic is shared across both tunnels.
+                 │
+                 ▼
+           Tunnel 2 (Active)
+On-Prem ─────────────────────────► AWS
+
+Both tunnels carry traffic simultaneously,
+providing better throughput and redundancy.
+
+──────────────────────────────────────────────────────────
+Interview Summary
+
+• Without ECMP:
+  One tunnel is Active, the other is Standby.
+
+• With ECMP:
+  Both tunnels are Active and share traffic.
+
+• ECMP increases bandwidth, improves load balancing,
+  and provides higher availability.
 ----------------------------------------------
+Does Virtual Private Gateway (VGW) support ECMP?
+
+❌ No. Virtual Private Gateway (VGW) does NOT support ECMP.
+
+Difference
+──────────────────────────────────────────────────────────
+
+VGW (Virtual Private Gateway)
+
+❌ No ECMP support
+
+• Uses one VPN tunnel as the active path.
+• The second VPN tunnel is primarily for failover.
+• Cannot load balance traffic across VPN tunnels.
+• Supports only a single VPC attachment.
+
+──────────────────────────────────────────────────────────
+
+Transit Gateway (TGW)
+
+✅ Supports ECMP
+
+• Can use multiple VPN tunnels simultaneously.
+• Requires BGP (dynamic routing).
+• Supports load balancing across equal-cost VPN paths.
+• Provides higher aggregate bandwidth.
+• Can connect multiple VPCs.
+
+──────────────────────────────────────────────────────────
+Architecture
+
+VGW
+
+On-Premises
+      │
+ Site-to-Site VPN
+   ┌────┴────┐
+Tunnel 1   Tunnel 2
+(Active)  (Standby)
+      │
+     VGW
+      │
+     VPC
+
+Only one tunnel carries traffic.
+
+──────────────────────────────────────────────────────────
+
+TGW with ECMP
+
+On-Premises
+      │
+ Site-to-Site VPN
+   ┌────┴────┐
+Tunnel 1   Tunnel 2
+(Active)  (Active)
+    \        /
+     \      /
+      Transit Gateway (TGW)
+             │
+        Multiple VPCs
+
+Traffic is shared across both tunnels.
+
+──────────────────────────────────────────────────────────
+Interview Summary
+
+Feature                         VGW          TGW
+---------------------------------------------------------
+Site-to-Site VPN                ✅           ✅
+ECMP                            ❌           ✅
+Multiple VPN tunnels Active     ❌           ✅
+Load Balancing                  ❌           ✅
+Multiple VPCs                   ❌           ✅
+Best for                        Single VPC   Multiple VPCs
+
+──────────────────────────────────────────────────────────
+Interview Answer
+
+• VGW does NOT support ECMP.
+• Only one VPN tunnel is active; the second tunnel is used for failover.
+• Transit Gateway (TGW) supports ECMP with BGP, allowing multiple VPN tunnels to be active simultaneously for load balancing and higher throughput.
+-------------------------------------------------------------------
 There is no fixed limit — you can attach as many VPN connections as you need!
 
 AWS TGW VPN limits:
@@ -789,13 +938,86 @@ On-Premises
      └── Direct Connect      → dedicated private line
               │
           Direct Connect Location → VPC
+------------------
+Single VPC
+-----------------
+On-Premises Network
+        │
+Customer Gateway (CGW)
+        │
+IPsec Site-to-Site VPN
+        │
+Virtual Private Gateway (VGW)
+        │
+AWS VPC
+---------------------------------
+if you're using a Hub Architecture
+---------------------------------
+On-Premises Network
+        │
+Customer Gateway (CGW)
+        │
+Site-to-Site VPN
+        │
+Transit Gateway (TGW)
+        │
+AWS VPC
+---------------------------------------
+Direct Connect (Single VPC)
+-------------------------
+On-Premises Network
+        │
+    Router
+        │
+AWS Direct Connect
+        │
+Direct Connect Gateway (Optional)
+        │
+Virtual Private Gateway (VGW)
+        │
+      AWS VPC
+-----------------------------------
+Direct Connect (Multiple VPCs)
+---------------------------------
+On-Premises Network
+        │
+    Router
+        │
+AWS Direct Connect
+        │
+Direct Connect Gateway (DXGW)
+        │
+Transit Gateway (TGW)
+        │
+   Multiple VPCs
+------------------------------
+| Site-to-Site VPN                     | Direct Connect                                                       |
+| ------------------------------------ | -------------------------------------------------------------------- |
+| Uses the **public internet**         | Uses a **private dedicated connection**                              |
+| Traffic is encrypted using **IPsec** | Traffic is **not encrypted by default** (VPN can be added if needed) |
+| Lower cost                           | Higher cost                                                          |
+| Faster to deploy                     | Takes time to provision                                              |
+| Performance depends on the internet  | Consistent, low-latency performance                                  |
+| Best for small/medium deployments    | Best for enterprise and high-bandwidth workloads                     |
+
+| Connection Type             | Uses VPN? | VPN Type                          |
+| --------------------------- | --------- | --------------------------------- |
+| Site-to-Site VPN            | ✅ Yes     | **IPsec VPN**                     |
+| Direct Connect              | ❌ No      | None (private dedicated link)     |
+
+AWS Direct Connect is a dedicated private network connection (typically a leased fiber link) between an on-premises data center and AWS.
+It does not use the public internet, which provides lower latency, more consistent performance, and higher bandwidth than a
+Site-to-Site VPN. If encryption is required, you can run an IPsec Site-to-Site VPN over Direct Connect.
 
 One line each:
 
-| Service          | One-liner                                                   |
-|------------------|-------------------------------------------------------------|
-| Site-to-Site VPN | Encrypted tunnel over public internet — cheap, quick setup  |
-| Direct Connect   | Dedicated private line — fast, consistent, expensive        |
+| Service          | One-liner                                                               |
+|------------------|-------------------------------------------------------------            |
+| Site-to-Site VPN | Encrypted tunnel over public internet — cheap, quick setup              |
+| Direct Connect   | Dedicated private line —  fiber cablefast, consistent, expensive        |
+
+✅ Site-to-Site VPN = AWS service using the public internet with IPsec.
+✅ Direct Connect = AWS service using a private dedicated connection (no VPN by default).
 
 Which to use:
 
@@ -808,6 +1030,24 @@ Which to use:
 One-liner: 
 On-prem to AWS = Site-to-Site VPN (internet based, cheap) or 
 Direct Connect (private dedicated line, expensive) — production uses both for redundancy.
+
+VPN for every VPC?
+
+No. You do not need a separate Site-to-Site VPN for every VPC.
+
+Rule of Thumb
+──────────────────────────────────────────────────────────
+
+Architecture                 VPNs Needed?
+
+1 VPC + VGW                  Usually 1 VPN connection
+                              to that VPC.
+
+Multiple VPCs + TGW          1 VPN connection can serve
+                              all attached VPCs through
+                              the Transit Gateway (TGW).
+
+──────────────────────────────────────────────────────────
 ----
 
 Virtual Private Gateway
