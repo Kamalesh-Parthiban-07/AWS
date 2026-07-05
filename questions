@@ -256,6 +256,16 @@ Methods to create:
 
 can we change instance type without down time?
 
+Yes. ASG Instance Refresh supports replacing instances when you change the launch template or launch configuration, including changes such as:
+
+✅ AMI
+✅ Instance type (e.g., t3.micro → t3.small)
+✅ User data
+✅ EBS volume configuration
+✅ Security groups (if specified in the launch template)
+✅ IAM instance profile
+✅ Other launch template settings
+
 For Instance refresh in ASG create before destroy or etc..,
 
 Instance Refresh is an ASG feature that gradually replaces all existing instances with new ones when you update the Launch Template — like a rolling update. 
