@@ -1,7 +1,11 @@
 How would you create new account in AWS?
 
-AWS Control Tower - Tower Factory (console/Service Catalog) — self-service portal, someone fills a form (account name, email, OU) and it provisions automatically
+AWS Control Tower - Account Factory (console/Service Catalog) — self-service portal, someone fills a form (account name, email, OU) and it provisions automatically
 in Organization and applies security policy (Guardrials)
+
+If they push further and ask "any other way?":
+
+"Yes — via Terraform, using the aws_organizations_account resource directly, or AFT (Account Factory for Terraform) if you want Control Tower's guardrails but a Git/PR-driven workflow instead of the console."
 
 What is AWS Control Tower?
 
