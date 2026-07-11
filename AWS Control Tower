@@ -1,3 +1,8 @@
+How would you create new account in AWS?
+
+AWS Control Tower - Tower Factory (console/Service Catalog) — self-service portal, someone fills a form (account name, email, OU) and it provisions automatically
+in Organization and applies security policy (Guardrials)
+
 What is AWS Control Tower?
 
 Must use Management/Root account = Organization master account to access AWS Control Tower
