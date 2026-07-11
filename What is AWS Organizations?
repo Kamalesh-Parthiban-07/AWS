@@ -1,3 +1,68 @@
+How would you provision and onboard multiple AWS accounts using Terraform and AWS Organizations?
+
+In UI
+
+Yes, invite (Organizations console → Add account → Invite existing), accept (from the target account), and move to OU (Actions → Move) are all doable via UI. Guardrails auto-apply once moved into the OU; deeper security retrofitting (CloudTrail/Config/SSO) still needs manual steps whether via UI or CLI.
+
+1. Invite the existing account (from Management account)
+
+- Go to AWS Organizations console → AWS accounts
+- Click Add an AWS account → Select Invite an existing AWS account
+- Enter the account ID or email of the existing account
+- Optionally add a note
+- Click Send invitation
+
+This is the UI equivalent of:
+invite-account-to-organization
+
+2. Accept the invitation (from the existing/standalone account)
+
+- Log into the existing account (the one being invited)
+- Go to AWS Organizations console
+- You'll see a pending invitation on the dashboard
+- Click Accept
+
+Note:
+You need to log in as that account—the accept step can't be done from the management account.
+
+3. Move the account into the correct OU
+
+• Back in the management account, go to AWS Organizations → AWS accounts
+• The newly joined account will appear under the Root by default
+• Select the account → click Actions → Move
+• Choose the destination OU (e.g., "Prod OU")
+• Click Move
+
+This is the UI equivalent of `move-account`.
+
+4. Guardrails/SCPs — automatic once moved
+
+• Once moved into that OU, it automatically inherits whatever SCPs are attached to that OU — no separate UI step needed for this part; it's structural (same as new accounts)
+• You can verify by going to Policies → Service control policies, and checking which policies show as attached to that OU
+
+------
+In CLI
+------
+
+1. Send an invitation from the management account:
+
+aws organizations invite-account-to-organization \
+  --target Id=123456789012,Type=ACCOUNT \
+  --notes "Join company Org"
+
+2. Accept the invitation — from within the existing/standalone account:
+
+aws organizations accept-handshake --handshake-id <handshake-id>
+
+3. Move it into the correct OU (it lands in the root by default after joining):
+
+aws organizations move-account \
+  --account-id 123456789012 \
+  --source-parent-id <root-id> \
+  --destination-parent-id <target-ou-id>
+
+4. Now it inherits SCPs/guardrails from that OU — same as a freshly-created account would.
+
 What is AWS Organizations?
 
 AWS Organizations is a service to centrally manage multiple AWS accounts under one root. It provides consolidated billing, 
