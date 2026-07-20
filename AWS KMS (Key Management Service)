@@ -73,10 +73,144 @@ key under doormat ❌         key in bank locker ✅
 
 
 
+---------------------------------------
+Yes — all five are IAM Actions that go inside a Policy's Action field.
 
+• kms:Encrypt
+• kms:GenerateDataKey
+  (Used heavily for envelope encryption — S3, EBS use this)
+• kms:DescribeKey
+• kms:CreateGrant
+• kms:Decrypt
 
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "kms:Encrypt",
+        "kms:Decrypt",
+        "kms:GenerateDataKey",
+        "kms:DescribeKey",
+        "kms:CreateGrant"
+      ],
+      "Resource": "arn:aws:kms:us-east-2:123456789012:key/abcd-1234"
+    }
+  ]
+}
 
+they are neither a role nor a policy on their own. They're one level smaller: Actions.
 
+IAM Role (e.g., EKS pod's IRSA role, EC2 instance role, Jenkins agent role)
+   └── has a Policy attached
+          └── Policy contains Actions:
+                - kms:Encrypt
+                - kms:Decrypt
+                - kms:GenerateDataKey
+                - kms:DescribeKey
+                - kms:CreateGrant
 
+if iam user does not have those actions ?
 
+Access Denied — the call fails immediately at the API level, before it even reaches the resource.
 
+User/Role tries: kms:Decrypt
+IAM checks: Does policy have "kms:Decrypt" listed?
+   ❌ NO → AccessDeniedException — request rejected
+   ✅ YES → proceed to check KMS Key Policy too
+
+You can do it at either level — bucket-level (recommended) or object-level (per-request). Let me break down both:
+
+1. Bucket-level (Default Encryption) — set once, applies to everything
+
+S3 Console → Bucket → Properties → Default encryption
+   → Enable
+   → Encryption type: SSE-KMS
+   → Choose KMS key (your CMK or aws/s3 managed key)
+
+Good question — clarify: AWS auto-provides a DEFAULT key, but a CMK you must always create yourself. Never auto-created.
+
+Both options exist — you choose one:
+
+Option 1: aws/s3 (AWS managed key) — already exists, zero setup
+
+• AWS creates this automatically in every account
+• No need to create anything — just select it from the dropdown
+• Free-ish (no monthly key fee, only API call charges)
+• You don't control rotation, policy, or cross-account sharing
+
+Option 2: Customer Managed Key (CMK) — you must create it yourself
+
+• Goes to KMS console → Create Key → Symmetric → give it an alias (e.g., alias/my-app-s3-key)
+• You control: key policy, rotation schedule, cross-account access, ability to disable/delete it
+• Costs ~$1/month per key + API charges
+• Needed when you want fine-grained access control (e.g., only certain roles can decrypt, not the whole account)
+
+Quick comparison:
+
++------------------------------+---------------------------+--------------------------------------------------+
+|                              | aws/s3 (AWS managed)      | Customer Managed Key (CMK)                       |
++------------------------------+---------------------------+--------------------------------------------------+
+| Setup                        | None — already there      | You create it in KMS                             |
++------------------------------+---------------------------+--------------------------------------------------+
+| Cost                         | No monthly key fee        | ~$1/month                                        |
++------------------------------+---------------------------+--------------------------------------------------+
+| Key policy control           | ❌ AWS controls it        | ✅ Full control                                  |
++------------------------------+---------------------------+--------------------------------------------------+
+| Cross-account sharing        | ❌ Not possible           | ✅ Possible                                      |
++------------------------------+---------------------------+--------------------------------------------------+
+| Rotation control             | Automatic, no control     | You choose (auto or manual)                      |
++------------------------------+---------------------------+--------------------------------------------------+
+| Audit granularity in         | Limited                   | Full — logs which key, which principal           |
+| CloudTrail                   |                           |                                                  |
++------------------------------+---------------------------+--------------------------------------------------+
+
+Good question — clarify: AWS auto-provides a DEFAULT key, but a CMK you must
+always create yourself. Never auto-created.
+
+What's automatic (zero action needed):
+
+• aws/ebs — default AWS-managed key for EBS, exists in every account automatically
+
+• aws/s3 — default AWS-managed key for S3, exists automatically
+
+• These appear in the dropdown without you doing anything — AWS provisions them at
+  account creation, silently, once per account/region
+
+What's NOT automatic (you must create it):
+
+• A Customer Managed Key (CMK) — e.g., alias/globalpayments-s3-key — never
+  appears unless you go to KMS console/Terraform and create it explicitly
+
+• If you select "Choose your own key" during EBS/S3 setup and no CMK exists yet,
+  the dropdown will be empty — you're expected to create one first, then come
+  back and select it
+
+-----
++------------------------------------------+---------------------------+------------------------+
+|                                          | aws/s3 default encryption | CMK default encryption |
++------------------------------------------+---------------------------+------------------------+
+| Encrypts all new uploads                 | ✅ Yes                    | ✅ Yes                 |
++------------------------------------------+---------------------------+------------------------+
+| Existing objects retroactively encrypted | ❌ No                     | ❌ No                  |
++------------------------------------------+---------------------------+------------------------+
+| Who controls key policy                  | AWS                       | You                    |
++------------------------------------------+---------------------------+------------------------+
+
+Upload:    Your file → S3 encrypts it → stored as ciphertext on disk
+Download:  You call GetObject → S3 decrypts automatically → you receive plaintext
+
+identical behavior. CMK or aws/s3, download always gives you plaintext automatically.
+
+but both aws s3 / CMK if dont have key action by users they cant download right?
+
+Correct — exactly right. Without kms:Decrypt, download fails regardless of which key type (aws/s3 or CMK) is protecting the object.
+
+User calls GetObject
+   ↓
+S3 tries to decrypt using the KMS key
+   ↓
+Checks: Does this user/role have kms:Decrypt permission?
+   ❌ NO → AccessDeniedException — download fails, no plaintext returned
+   ✅ YES → decrypts automatically → plaintext returned
