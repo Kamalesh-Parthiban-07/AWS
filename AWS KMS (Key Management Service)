@@ -214,3 +214,13 @@ S3 tries to decrypt using the KMS key
 Checks: Does this user/role have kms:Decrypt permission?
    ❌ NO → AccessDeniedException — download fails, no plaintext returned
    ✅ YES → decrypts automatically → plaintext returned
+---------------------------
+
+encrypt = true alone is SSE-S3 (AES256), not SSE-KMS — it's AWS's default S3 encryption, not the KMS-based encryption you've been 
+discussing this whole conversation. To get real KMS-backed encryption on the state file, you must explicitly add kms_key_id.
+
+"There's no UI equivalent for encrypt = true — it's a Terraform-code-only flag for the state file object. The UI-equivalent control 
+is the bucket's own Default Encryption setting under bucket Properties, which applies to every object, not just Terraform's state."
+
+Interview-ready line: "encrypt = true controls encryption at write time only — Terraform always reads back plaintext state automatically
+, same as any S3 GetObject. The only difference kms_key_id makes is adding a kms:Decrypt permission requirement on top of the usual s3:GetObject."
