@@ -1,0 +1,67 @@
+Secrets Manager → protects lifecycle + access + rotation
+
+💥 Why AWS Secrets Manager exists
+
+Because it solves problems Terraform does NOT solve:
+
+1. Centralized secret storage
+
+Instead of embedding secrets in infrastructure state.
+
+2. Access control (IAM-based)
+
+You can say:
+
+EC2 role → can read secret
+Terraform → can read secret
+Developer → cannot
+
+3. Rotation (BIG reason)
+
+Secrets Manager supports:
+
+automatic password rotation
+database credential rotation without downtime
+
+☁️ AWS password rotation (real-world)
+
+Using AWS Secrets Manager, you can enable:
+
+automatic rotation every X days (e.g., 30, 60, 90)
+Lambda function handles updating DB password
+apps keep working without downtime
+
+✅ Automatic rotation (AWS way)
+
+AWS uses a Lambda rotation function behind the scenes.
+
+Flow:
+
+Secrets Manager
+      ↓
+Generates new password
+      ↓
+Rotation Lambda runs
+      ↓
+Updates database password
+      ↓
+Updates secret in Secrets Manager
+
+Terraform does NOT do this.
+
+4. Audit tracking
+
+You get:
+
+who accessed secret
+when
+from where
+
+Terraform state does not give this level of audit control.
+
+5. Separation of concerns
+
+| System          | Purpose                     |
+| --------------- | --------------------------- |
+| Terraform       | Infrastructure provisioning |
+| Secrets Manager | Secret lifecycle management |
