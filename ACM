@@ -1,5 +1,8 @@
 ACM (AWS Certificate Manager) has one main job:
 Manage SSL/TLS certificates for your domain.
+
+ACM (AWS Certificate Manager) provisions, manages, and auto-renews SSL/TLS certificates for AWS resources like ALB/NLB/CloudFront — 
+but note, TLS listeners only on NLB, not passthrough mode.
 -----------------
 https://www.youtube.com/watch?v=HpOjscdsrNU
 ------------------
