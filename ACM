@@ -132,6 +132,8 @@ NLB TLS support:
   ✅ ACM certificate    (when terminating TLS)
   ❌ HTTP routing       (still needs NGINX for that)
 
+TLS handshake - Client-server key exchange, authentication, encryption.
+
 My earlier statement was wrong!
 NLB does support TLS and ACM ✅
 
