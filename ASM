@@ -1,3 +1,7 @@
+ASM (AWS Secrets Manager) is a fully managed service to securely store, retrieve, and rotate secrets like DB credentials, API keys, 
+and tokens — eliminating hardcoded credentials in code/config. It integrates natively with IAM for access control and supports 
+automatic rotation via Lambda functions.
+
 Secrets Manager → protects lifecycle + access + rotation
 
 💥 Why AWS Secrets Manager exists
